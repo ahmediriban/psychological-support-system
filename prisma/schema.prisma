@@ -1,0 +1,236 @@
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//
+// ======================
+// USERS / AUTH
+// ======================
+//
+
+model User {
+  id            String  @id @default(cuid())
+  email         String  @unique
+  name          String?
+  emailVerified Boolean @default(false)
+  image         String?
+  password      String? // kept for manual/legacy credential flows; better-auth uses Account.password
+
+  role Role @default(USER)
+
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  usageLogs  UsageLog[]
+  audits     AuditLog[]
+  sessions   Session[]
+  accounts   Account[]
+  banned     Boolean?   @default(false)
+  banReason  String?
+  banExpires DateTime?
+
+  @@map("user")
+}
+
+enum Role {
+  ADMIN
+  SUPERVISOR
+  USER
+}
+
+//
+// ======================
+// TEAMS (Khan Younis / Deir)
+// ======================
+//
+
+model Team {
+  id   String @id @default(cuid())
+  name String // "Khan Younis", "Deir"
+
+  users  User[]
+  stocks Stock[]
+  usages UsageLog[]
+  txs    StockTransaction[]
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ======================
+// ITEMS (inventory items)
+// ======================
+//
+
+model Item {
+  id   String  @id @default(cuid())
+  name String
+  unit String? // box, piece, etc
+
+  stocks Stock[]
+  usages UsageLog[]
+  txs    StockTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+//
+// ======================
+// CURRENT STOCK (per team per item)
+// ======================
+//
+
+model Stock {
+  id String @id @default(cuid())
+
+  itemId String
+  teamId String
+
+  quantity Int @default(0)
+
+  item Item @relation(fields: [itemId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([itemId, teamId])
+}
+
+//
+// ======================
+// STOCK TRANSACTIONS (FULL HISTORY)
+// GIVE / USE / RETURN
+// ======================
+//
+
+model StockTransaction {
+  id String @id @default(cuid())
+
+  itemId String
+  teamId String
+
+  type     StockTransactionType
+  quantity Int
+
+  note String?
+
+  createdAt DateTime @default(now())
+
+  item Item @relation(fields: [itemId], references: [id])
+  team Team @relation(fields: [teamId], references: [id])
+}
+
+enum StockTransactionType {
+  GIVE
+  USE
+  RETURN
+}
+
+//
+// ======================
+// USAGE LOG (business meaning layer)
+// ======================
+//
+
+model UsageLog {
+  id String @id @default(cuid())
+
+  itemId String
+  teamId String
+  userId String?
+
+  quantity Int
+  purpose  String // "activity name / program"
+
+  createdAt DateTime @default(now())
+
+  item Item  @relation(fields: [itemId], references: [id])
+  team Team  @relation(fields: [teamId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
+}
+
+//
+// ======================
+// AUDIT LOG (SECURITY / TRACEABILITY)
+// ======================
+//
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  userId   String
+  action   String // "STOCK_GIVE", "STOCK_USE", "LOGIN", etc
+  entity   String // "Stock", "Item", "UsageLog"
+  entityId String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+//
+// ======================
+// BETTER-AUTH TABLES
+// ======================
+//
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime
+  updatedAt      DateTime
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  impersonatedBy String?
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@index([identifier])
+  @@map("verification")
+}
