@@ -5,9 +5,6 @@ import { routing } from "./i18n/routing";
 // next-intl middleware handles locale detection and routing
 const intlMiddleware = createMiddleware(routing);
 
-// The session cookie name better-auth uses by default
-const SESSION_COOKIE = "better-auth.session_token";
-
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -17,7 +14,11 @@ export default function middleware(request: NextRequest) {
   const isDashboardRoute = /^\/[^/]+\/(dashboard)/.test(pathname);
 
   if (isDashboardRoute) {
-    const hasSession = request.cookies.has(SESSION_COOKIE);
+    // better-auth uses "better-auth.session_token" in dev (HTTP)
+    // and "__Secure-better-auth.session_token" in production (HTTPS).
+    const hasSession = request.cookies.getAll().some(
+      (c) => c.name.includes("better-auth.session_token")
+    );
     if (!hasSession) {
       const url = request.nextUrl.clone();
       // Preserve locale prefix when redirecting
