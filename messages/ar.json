@@ -10,7 +10,7 @@
     "dashboard": "الرئيسية",
     "items": "المواد",
     "teams": "الفرق",
-    "workers": "العمال",
+    "workers": "منسقي الفرق",
     "distribution": "التوزيع",
     "usage": "الاستخدام",
     "logs": "السجلات"
@@ -20,7 +20,7 @@
     "items": "المواد",
     "teams": "الفرق",
     "teamDetail": "تفاصيل الفريق",
-    "workers": "العمال",
+    "workers": "منسقي الفرق",
     "distribution": "التوزيع",
     "usage": "الاستخدام",
     "logs": "السجلات"
