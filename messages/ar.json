@@ -82,7 +82,7 @@
     "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه."
   },
   "workers": {
-    "title": "العمال",
+    "title": "منسقي الفرق",
     "addWorker": "إضافة منسق فريق",
     "editWorker": "تعديل منسق فريق",
     "deleteWorker": "حذف منسق فريق",

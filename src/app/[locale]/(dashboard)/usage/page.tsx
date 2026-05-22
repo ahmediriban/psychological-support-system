@@ -15,9 +15,9 @@ export default async function UsagePage({
   if (!user) redirect(`/${locale}/login`);
 
   if (user.role === "USER") {
-    if (!user.teamId) redirect(`/${locale}/dashboard`);
+    if (!user.teamId) redirect(`/${locale}/items`);
     const team = await getTeamById(user.teamId);
-    if (!team) redirect(`/${locale}/dashboard`);
+    if (!team) redirect(`/${locale}/items`);
     return (
       <UsagePageContent
         role="USER"

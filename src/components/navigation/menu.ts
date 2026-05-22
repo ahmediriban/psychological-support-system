@@ -12,11 +12,9 @@ export function isNavItemVisible(item: NavItem, userRole: string): boolean {
 }
 
 export const navItems: NavItem[] = [
-  { key: "dashboard", href: "/dashboard" },
   { key: "items", href: "/items", minRole: "ADMIN" },
   { key: "teams", href: "/teams" },
   { key: "workers", href: "/workers", minRole: "ADMIN" },
   { key: "distribution", href: "/distribution", minRole: "ADMIN" },
-  { key: "usage", href: "/usage" },
-  { key: "logs", href: "/logs", minRole: "ADMIN" },
+  { key: "usage", href: "/usage" }
 ];

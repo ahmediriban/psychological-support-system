@@ -16,7 +16,7 @@ export default async function TeamDetailPage({
   // WORKER can only view their own team
   if (user.role === "USER" && user.teamId !== teamId) {
     if (user.teamId) redirect(`/${locale}/teams/${user.teamId}`);
-    else redirect(`/${locale}/dashboard`);
+    else redirect(`/${locale}/items`);
   }
 
   return (

@@ -12,7 +12,7 @@ export default async function DistributionPage({
   const user = await getCurrentUserWithRole(await headers());
 
   if (!user) redirect(`/${locale}/login`);
-  if (user.role === "USER") redirect(`/${locale}/dashboard`);
+  if (user.role === "USER") redirect(`/${locale}/items`);
 
   return <DistributionPageContent role={user.role as "ADMIN" | "SUPERVISOR"} />;
 }

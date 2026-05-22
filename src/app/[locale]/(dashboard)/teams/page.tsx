@@ -16,7 +16,7 @@ export default async function TeamsPage({
   // WORKER → go straight to their own team detail (or dashboard if unassigned)
   if (user.role === "USER") {
     if (user.teamId) redirect(`/${locale}/teams/${user.teamId}`);
-    else redirect(`/${locale}/dashboard`);
+    else redirect(`/${locale}/items`);
   }
 
   return <TeamsPageContent role={user.role as "ADMIN" | "SUPERVISOR"} />;
