@@ -124,7 +124,8 @@
     "deleteTeam": "Delete Team",
     "confirmDelete": "Are you sure you want to delete this team?",
     "deleteWarning": "This action cannot be undone.",
-    "location": "Location"
+    "location": "Location",
+    "allCategories": "All Categories"
   },
   "workers": {
     "title": "Workers",

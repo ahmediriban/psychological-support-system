@@ -33,7 +33,7 @@ export type TeamDetail = {
 export type StockEntry = {
   id: string;
   quantity: number;
-  item: { id: string; name: string; unit: string | null };
+  item: { id: string; name: string; unit: string | null; category: ItemCategoryEnum };
 };
 
 /** Returned by GET /api/teams/[id]/usage */

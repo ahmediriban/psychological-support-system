@@ -124,7 +124,8 @@
     "deleteTeam": "حذف الفريق",
     "confirmDelete": "هل أنت متأكد من حذف هذا الفريق؟",
     "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه.",
-    "location": "مكان الاستخدام"
+    "location": "مكان الاستخدام",
+    "allCategories": "جميع الفئات"
   },
   "workers": {
     "title": "منسقي الفرق",
