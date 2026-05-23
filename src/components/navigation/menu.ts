@@ -1,6 +1,10 @@
+import type { IconType } from "react-icons";
+import { MdInventory2, MdGroup, MdPeople, MdLocalShipping, MdAssignment } from "react-icons/md";
+
 export type NavItem = {
   key: "dashboard" | "items" | "teams" | "workers" | "distribution" | "usage" | "logs";
   href: string;
+  icon: IconType;
   minRole?: "ADMIN" | "SUPERVISOR" | "USER";
 };
 
@@ -12,9 +16,9 @@ export function isNavItemVisible(item: NavItem, userRole: string): boolean {
 }
 
 export const navItems: NavItem[] = [
-  { key: "items", href: "/items", minRole: "ADMIN" },
-  { key: "teams", href: "/teams" },
-  { key: "workers", href: "/workers", minRole: "ADMIN" },
-  { key: "distribution", href: "/distribution", minRole: "ADMIN" },
-  { key: "usage", href: "/usage" }
+  { key: "items",        href: "/items",        icon: MdInventory2,    minRole: "ADMIN" },
+  { key: "teams",        href: "/teams",        icon: MdGroup },
+  { key: "workers",      href: "/workers",      icon: MdPeople,        minRole: "ADMIN" },
+  { key: "distribution", href: "/distribution", icon: MdLocalShipping, minRole: "ADMIN" },
+  { key: "usage",        href: "/usage",        icon: MdAssignment },
 ];

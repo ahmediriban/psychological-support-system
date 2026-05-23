@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Grid, Text } from "@chakra-ui/react";
+import { Box, Grid, Text, VStack } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "../../i18n/navigation";
 import { isNavItemVisible, navItems } from "./menu";
@@ -28,21 +28,22 @@ export function BottomNav({ userRole }: { userRole: string }) {
       <Grid templateColumns={`repeat(${visibleItems.length}, 1fr)`} w="full">
         {visibleItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const Icon = item.icon;
           return (
             <Link key={item.key} href={item.href} style={{ display: "flex" }}>
-              <Box
+              <VStack
                 flex={1}
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                color={isActive ? "blue.600" : "gray.500"}
-                fontWeight={isActive ? "semibold" : "normal"}
+                gap={0.5}
+                align="center"
+                justify="center"
+                color={isActive ? "blue.600" : "gray.400"}
                 fontSize="xs"
                 borderTopWidth="2px"
                 borderTopColor={isActive ? "blue.500" : "transparent"}
               >
-                <Text>{t(item.key)}</Text>
-              </Box>
+                <Icon size={20} />
+                <Text fontSize="2xs" lineHeight={1}>{t(item.key)}</Text>
+              </VStack>
             </Link>
           );
         })}
