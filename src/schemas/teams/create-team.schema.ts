@@ -6,7 +6,7 @@ export const createTeamSchema = z.object({
   categories: z
     .array(z.enum(ITEM_CATEGORIES))
     .min(1, "At least one category required")
-    .max(3, "At most 3 categories allowed"),
+    .max(4, "At most 4 categories allowed"),
 });
 
 export type CreateTeamInput = z.infer<typeof createTeamSchema>;

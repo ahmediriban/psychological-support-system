@@ -47,6 +47,7 @@
     "category": "Category",
     "selectCategory": "Select Category",
     "selectUpTo3": "select up to 3",
+    "selectUpTo4": "select up to 4",
     "categoryRequired": "At least one category is required"
   },
   "items": {

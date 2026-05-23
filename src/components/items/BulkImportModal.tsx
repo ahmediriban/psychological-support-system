@@ -44,6 +44,7 @@ function normalizeCategory(raw: unknown): ItemCategoryEnum | null {
     FIRST_AID: "FIRST_AID",
     FIRSTAID: "FIRST_AID",
     HYGIENE: "HYGIENE",
+    PRINTING: "PRINTING",
   };
   return map[upper] ?? (ITEM_CATEGORIES.includes(upper as ItemCategoryEnum) ? (upper as ItemCategoryEnum) : null);
 }

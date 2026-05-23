@@ -4,7 +4,7 @@ import { Button, HStack, Text } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import type { ItemCategoryEnum } from "../../schemas/items/create-item.schema";
 
-const CATEGORIES: ItemCategoryEnum[] = ["MATERIALS_STATIONERY", "FIRST_AID", "HYGIENE"];
+const CATEGORIES: ItemCategoryEnum[] = ["MATERIALS_STATIONERY", "FIRST_AID", "HYGIENE", "PRINTING"];
 
 type Props = {
   value: ItemCategoryEnum;
