@@ -8,6 +8,7 @@ export type DistributionMeta = {
   itemId: string;
   itemName: string;
   itemUnit: string | null;
+  itemCategory: string;
   teams: DistributionTeamEntry[];
   totalQuantity: number;
   note?: string;

@@ -1,6 +1,7 @@
-import { createDistribution, getDistributions, getDistributionsPaged } from "../../../lib/distribution";
+import { createDistribution, getDistributionsPaged } from "../../../lib/distribution";
 import { getCurrentUserWithRole } from "../../../lib/auth";
 import { Role } from "../../../generated/prisma/enums";
+import { ITEM_CATEGORIES, type ItemCategoryEnum } from "../../../schemas/items/create-item.schema";
 import { createDistributionSchema } from "../../../schemas/distribution/create-distribution.schema";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,16 +17,17 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (user.role === Role.USER) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const rawPage = req.nextUrl.searchParams.get("page");
+  const { searchParams } = req.nextUrl;
+  const rawPage = searchParams.get("page");
   const page = rawPage ? Math.max(1, parseInt(rawPage, 10) || 1) : null;
+  const rawCategory = searchParams.get("category");
+  const category = ITEM_CATEGORIES.includes(rawCategory as ItemCategoryEnum)
+    ? (rawCategory as ItemCategoryEnum)
+    : undefined;
 
   try {
-    if (page !== null) {
-      const result = await getDistributionsPaged(page, PAGE_SIZE);
-      return NextResponse.json(result);
-    }
-    const distributions = await getDistributions();
-    return NextResponse.json(distributions);
+    const result = await getDistributionsPaged(page ?? 1, PAGE_SIZE, category);
+    return NextResponse.json(page !== null ? result : result.data);
   } catch {
     return NextResponse.json({ error: "Failed to fetch distributions" }, { status: 500 });
   }

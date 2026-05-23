@@ -64,7 +64,7 @@ export function DistributionPageContent({ role }: Props) {
         <TabsContent value="history">
           <Stack gap={4}>
             <Text fontSize="sm" color="gray.500">{t("historySubtitle")}</Text>
-            <DistributionHistory />
+            <DistributionHistory category={category} />
           </Stack>
         </TabsContent>
       </TabsRoot>

@@ -12,14 +12,19 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDistributionsPaged } from "../../hooks/distribution/useDistributions";
 import { Pagination } from "../ui/Pagination";
 
-export function DistributionHistory() {
+type Props = { category?: string };
+
+export function DistributionHistory({ category }: Props) {
   const t = useTranslations("distribution");
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useDistributionsPaged(page);
+
+  useEffect(() => { setPage(1); }, [category]);
+
+  const { data, isLoading, isError } = useDistributionsPaged(page, category);
 
   if (isLoading && !data) {
     return (

@@ -11,24 +11,23 @@ type CreateDistributionData = {
 
 // ─── Read helpers ─────────────────────────────────────────────────────────────
 
-export async function getDistributions(): Promise<DistributionRecord[]> {
-  const logs = await prisma.auditLog.findMany({
-    where: { action: "DISTRIBUTION" },
-    include: { user: { select: { id: true, name: true, email: true } } },
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
+function buildWhere(category?: string) {
+  const where: any = { action: "DISTRIBUTION" };
+  if (category) where.metadata = { path: ["itemCategory"], equals: category };
+  return where;
+}
 
-  return logs.map((log) => ({
+function toRecord(log: any): DistributionRecord {
+  return {
     id: log.id,
     createdAt: log.createdAt.toISOString(),
     metadata: log.metadata as unknown as DistributionMeta,
     user: log.user,
-  }));
+  };
 }
 
-export async function getDistributionsPaged(page: number, pageSize: number) {
-  const where = { action: "DISTRIBUTION" };
+export async function getDistributionsPaged(page: number, pageSize: number, category?: string) {
+  const where = buildWhere(category);
   const [logs, total] = await Promise.all([
     prisma.auditLog.findMany({
       where,
@@ -40,12 +39,7 @@ export async function getDistributionsPaged(page: number, pageSize: number) {
     prisma.auditLog.count({ where }),
   ]);
   return {
-    data: logs.map((log) => ({
-      id: log.id,
-      createdAt: log.createdAt.toISOString(),
-      metadata: log.metadata as unknown as DistributionMeta,
-      user: log.user,
-    })),
+    data: logs.map(toRecord),
     total,
     page,
     pageSize,
@@ -122,7 +116,7 @@ export async function createDistribution(
   const [item, teams] = await Promise.all([
     prisma.item.findUnique({
       where: { id: data.itemId },
-      select: { id: true, name: true, unit: true, totalQuantity: true },
+      select: { id: true, name: true, unit: true, totalQuantity: true, category: true },
     }),
     prisma.team.findMany({
       where: { id: { in: data.teams.map((t) => t.teamId) } } as any,
@@ -143,6 +137,7 @@ export async function createDistribution(
     itemId: item.id,
     itemName: item.name,
     itemUnit: item.unit ?? null,
+    itemCategory: (item as any).category,
     teams: data.teams.map((t) => ({
       teamId: t.teamId,
       teamName: teamMap.get(t.teamId)!,

@@ -28,10 +28,12 @@ export function useDistributions() {
   });
 }
 
-export function useDistributionsPaged(page: number) {
+export function useDistributionsPaged(page: number, category?: string) {
+  const params = new URLSearchParams({ page: String(page) });
+  if (category) params.set("category", category);
   return useQuery<PagedResponse<DistributionRecord>>({
-    queryKey: [...QUERY_KEY, "paged", page],
-    queryFn: () => apiFetch<PagedResponse<DistributionRecord>>(`/api/distribution?page=${page}`),
+    queryKey: [...QUERY_KEY, "paged", page, category],
+    queryFn: () => apiFetch<PagedResponse<DistributionRecord>>(`/api/distribution?${params.toString()}`),
     placeholderData: (prev) => prev,
   });
 }
