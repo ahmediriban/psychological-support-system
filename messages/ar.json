@@ -8,7 +8,11 @@
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
     "submit": "تسجيل الدخول",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "subtitle": "أدخل بياناتك للوصول إلى النظام",
+    "emailPlaceholder": "example@email.com",
+    "passwordPlaceholder": "••••••••",
+    "switchLang": "English"
   },
   "nav": {
     "dashboard": "الرئيسية",

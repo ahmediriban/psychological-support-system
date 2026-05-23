@@ -15,15 +15,6 @@ export async function createWorker(
   data: { name: string; email: string; password: string; teamId?: string },
   requestHeaders: Headers
 ) {
-  // admin.createUser sets up the Account record with better-auth's own
-  // password hashing — direct prisma.user.create would use a different hash
-  // format that better-auth can't verify at login time.
-  // We pass our custom fields (role, teamId) via `data` so they land on the
-  // User row in the same insert. We intentionally omit the admin plugin's
-  // `role` param to avoid conflicting with our own Role enum column.
-  const session = await auth.api.getSession({ headers: requestHeaders });
-  console.log("[createWorker] session.user.role =", session?.user?.role);
-
   const created = await auth.api.createUser({
     body: {
       name: data.name,
