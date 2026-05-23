@@ -9,5 +9,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [admin({ defaultRole: "USER", adminRoles: ["ADMIN"], adminUserIds: ["DdJWsqWdFjNNCxhh6voOCAFpU5jdeCp7"] }), nextCookies()],
+  plugins: [admin({ defaultRole: "USER", adminRoles: ["ADMIN"], adminUserIds: ["F1iKZOXBLAHKMmX2NhMKUgkq9Q8VXsAn", "IKTgQR2UMtJ7K6XEk31AEqrBFg3m7oBD"] }), nextCookies()],
 })
