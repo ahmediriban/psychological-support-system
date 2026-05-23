@@ -8,12 +8,9 @@ import { WorkerCard } from "./WorkerCard";
 type Props = {
   workers: Worker[];
   isAdmin: boolean;
-  onEdit: (worker: Worker) => void;
-  onDelete: (worker: Worker) => void;
-  onAssignTeam: (worker: Worker) => void;
 };
 
-export function WorkerList({ workers, isAdmin, onEdit, onDelete, onAssignTeam }: Props) {
+export function WorkerList({ workers, isAdmin }: Props) {
   const t = useTranslations("workers");
 
   if (workers.length === 0) {
@@ -27,14 +24,7 @@ export function WorkerList({ workers, isAdmin, onEdit, onDelete, onAssignTeam }:
   return (
     <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap={4}>
       {workers.map((worker) => (
-        <WorkerCard
-          key={worker.id}
-          worker={worker}
-          isAdmin={isAdmin}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onAssignTeam={onAssignTeam}
-        />
+        <WorkerCard key={worker.id} worker={worker} isAdmin={isAdmin} />
       ))}
     </SimpleGrid>
   );

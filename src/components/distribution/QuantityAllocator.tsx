@@ -27,7 +27,10 @@ type Props = {
 
 export function QuantityAllocator({ allocations, onChange, category, maxTotal }: Props) {
   const t = useTranslations("distribution");
-  const { data: teams = [], isLoading, isError } = useTeams(category);
+  const { data: allTeams = [], isLoading, isError } = useTeams();
+  const teams = category
+    ? allTeams.filter((t) => t.categories.includes(category as any))
+    : allTeams;
 
   const total = Array.from(allocations.values()).reduce((s, a) => s + a.quantity, 0);
   const remaining = maxTotal !== undefined ? maxTotal - total : undefined;

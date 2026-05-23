@@ -6,6 +6,7 @@ type CreateUsageData = {
   teamId: string;
   quantity: number;
   purpose: string;
+  location?: string;
 };
 
 const USAGE_INCLUDE = {
@@ -23,6 +24,7 @@ function toRecord(log: any): UsageRecord {
     item: log.item,
     quantity: log.quantity,
     purpose: log.purpose,
+    location: log.location ?? null,
     user: log.user ?? null,
     createdAt:
       log.createdAt instanceof Date ? log.createdAt.toISOString() : log.createdAt,
@@ -136,6 +138,7 @@ export async function createUsage(
         userId,
         quantity: data.quantity,
         purpose: data.purpose,
+        location: data.location ?? null,
       },
       include: USAGE_INCLUDE,
     });

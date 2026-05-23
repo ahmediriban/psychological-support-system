@@ -7,9 +7,10 @@ import { useTeam } from "../../hooks/teams/useTeams";
 
 type Props = {
   teamId: string;
+  role: "ADMIN" | "SUPERVISOR" | "USER";
 };
 
-export function TeamDetailHeader({ teamId }: Props) {
+export function TeamDetailHeader({ teamId, role }: Props) {
   const t = useTranslations("teams");
   const { data: team, isLoading } = useTeam(teamId);
 
@@ -17,11 +18,11 @@ export function TeamDetailHeader({ teamId }: Props) {
 
   return (
     <Box mb={6}>
-      <Link href="/teams">
+      {role === "ADMIN" && <Link href="/teams">
         <Text fontSize="sm" color="blue.500" mb={3} display="inline-block">
           ← {t("backToTeams")}
         </Text>
-      </Link>
+      </Link>}
       {isLoading ? (
         <Skeleton h="32px" w="200px" mb={2} />
       ) : (

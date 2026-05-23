@@ -11,7 +11,7 @@ export type TeamWorker = {
 export type TeamSummary = {
   id: string;
   name: string;
-  category: ItemCategoryEnum;
+  categories: ItemCategoryEnum[];
   createdAt: string;
   users: TeamWorker[];
   _count: {
@@ -24,7 +24,7 @@ export type TeamSummary = {
 export type TeamDetail = {
   id: string;
   name: string;
-  category: ItemCategoryEnum;
+  categories: ItemCategoryEnum[];
   createdAt: string;
   users: (TeamWorker & { role: string })[];
 };
@@ -41,6 +41,7 @@ export type UsageEntry = {
   id: string;
   quantity: number;
   purpose: string;
+  location: string | null;
   createdAt: string;
   item: { id: string; name: string; unit: string | null };
   user: { id: string; name: string | null; email: string } | null;

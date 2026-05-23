@@ -47,6 +47,7 @@ export function TeamUsageHistory({ teamId }: Props) {
               <Table.ColumnHeader>{t("quantity")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("worker")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("purpose")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("location")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("date")}</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
@@ -59,6 +60,7 @@ export function TeamUsageHistory({ teamId }: Props) {
                   {entry.user?.name ?? entry.user?.email ?? "—"}
                 </Table.Cell>
                 <Table.Cell>{entry.purpose}</Table.Cell>
+                <Table.Cell color="gray.500">{entry.location ?? "—"}</Table.Cell>
                 <Table.Cell color="gray.500" whiteSpace="nowrap">
                   {new Date(entry.createdAt).toLocaleDateString()}
                 </Table.Cell>

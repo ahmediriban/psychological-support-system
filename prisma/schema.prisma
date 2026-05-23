@@ -57,7 +57,7 @@ model Team {
   id   String @id @default(cuid())
   name String // "Khan Younis", "Deir"
 
-  category ItemCategory @default(MATERIALS_STATIONERY)
+  categories ItemCategory[]
 
   users  User[]
   stocks Stock[]
@@ -163,6 +163,7 @@ model UsageLog {
 
   quantity Int
   purpose  String // "activity name / program"
+  location String? // where the items were used
 
   createdAt DateTime @default(now())
 

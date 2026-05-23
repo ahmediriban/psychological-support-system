@@ -1,16 +1,18 @@
 "use client";
 
 import { Box, Flex, HStack, IconButton, Text } from "@chakra-ui/react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { MdLogout, MdLanguage } from "react-icons/md";
 import { authClient } from "../../lib/auth/client";
 import { useRouter, usePathname } from "../../i18n/navigation";
+import { Tooltip } from "../ui/tooltip";
 
 export function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
   const nextLocale = locale === "ar" ? "en" : "ar";
+  const t = useTranslations("login");
 
   async function handleLogout() {
     await authClient.signOut({
@@ -47,26 +49,29 @@ export function Header() {
         </Text>
 
         <HStack gap={1}>
-          <IconButton
-            aria-label="Switch language"
-            variant="ghost"
-            colorPalette="gray"
-            size="sm"
-            onClick={handleLocaleSwitch}
-            title={nextLocale === "ar" ? "العربية" : "English"}
-          >
-            <MdLanguage size={20} />
-          </IconButton>
+          <Tooltip content={nextLocale === "ar" ? "العربية" : "English"}>
+            <IconButton
+              aria-label="Switch language"
+              variant="ghost"
+              colorPalette="gray"
+              size="sm"
+              onClick={handleLocaleSwitch}
+            >
+              <MdLanguage size={20} />
+            </IconButton>
+          </Tooltip>
 
-          <IconButton
-            aria-label="Logout"
-            variant="ghost"
-            colorPalette="red"
-            size="sm"
-            onClick={handleLogout}
-          >
-            <MdLogout size={20} />
-          </IconButton>
+          <Tooltip content={t("logout")}>
+            <IconButton
+              aria-label="Logout"
+              variant="ghost"
+              colorPalette="red"
+              size="sm"
+              onClick={handleLogout}
+            >
+              <MdLogout size={20} />
+            </IconButton>
+          </Tooltip>
         </HStack>
       </Flex>
     </Box>

@@ -11,11 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useWorkers } from "../../hooks/workers/useWorkers";
-import type { Worker } from "../../types/worker";
-import { AssignWorkerToTeamModal } from "./AssignWorkerToTeamModal";
 import { CreateWorkerDialog } from "./CreateWorkerDialog";
-import { DeleteWorkerDialog } from "./DeleteWorkerDialog";
-import { EditWorkerDialog } from "./EditWorkerDialog";
 import { WorkerList } from "./WorkerList";
 
 type Props = {
@@ -27,11 +23,7 @@ export function WorkersPageContent({ role }: Props) {
   const isAdmin = role === "ADMIN";
 
   const { data: workers = [], isLoading, isError } = useWorkers();
-
   const [showCreate, setShowCreate] = useState(false);
-  const [editWorker, setEditWorker] = useState<Worker | null>(null);
-  const [deleteWorker, setDeleteWorker] = useState<Worker | null>(null);
-  const [assignWorker, setAssignWorker] = useState<Worker | null>(null);
 
   if (isLoading) {
     return (
@@ -64,36 +56,9 @@ export function WorkersPageContent({ role }: Props) {
         )}
       </HStack>
 
-      <WorkerList
-        workers={workers}
-        isAdmin={isAdmin}
-        onEdit={setEditWorker}
-        onDelete={setDeleteWorker}
-        onAssignTeam={setAssignWorker}
-      />
+      <WorkerList workers={workers} isAdmin={isAdmin} />
 
-      <CreateWorkerDialog
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-      />
-
-      <EditWorkerDialog
-        worker={editWorker}
-        open={!!editWorker}
-        onClose={() => setEditWorker(null)}
-      />
-
-      <DeleteWorkerDialog
-        worker={deleteWorker}
-        open={!!deleteWorker}
-        onClose={() => setDeleteWorker(null)}
-      />
-
-      <AssignWorkerToTeamModal
-        worker={assignWorker}
-        open={!!assignWorker}
-        onClose={() => setAssignWorker(null)}
-      />
+      <CreateWorkerDialog open={showCreate} onClose={() => setShowCreate(false)} />
     </Box>
   );
 }

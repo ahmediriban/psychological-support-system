@@ -22,11 +22,10 @@ async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
 
 // ─── Teams list ───────────────────────────────────────────────────────────────
 
-export function useTeams(category?: string) {
-  const url = category ? `/api/teams?category=${category}` : "/api/teams";
+export function useTeams() {
   return useQuery<TeamSummary[]>({
-    queryKey: ["teams", category],
-    queryFn: () => apiFetch<TeamSummary[]>(url),
+    queryKey: ["teams"],
+    queryFn: () => apiFetch<TeamSummary[]>("/api/teams"),
   });
 }
 
@@ -57,6 +56,19 @@ export function useCreateTeam() {
     mutationFn: (data) =>
       apiFetch<TeamDetail>("/api/teams/create", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["teams"] }),
+  });
+}
+
+export function useUpdateTeam() {
+  const queryClient = useQueryClient();
+  return useMutation<TeamDetail, Error, { id: string } & CreateTeamInput>({
+    mutationFn: ({ id, ...data }) =>
+      apiFetch<TeamDetail>(`/api/teams/${id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       }),
@@ -98,7 +110,7 @@ export function useTeamStock(teamId: string) {
   });
 }
 
-export function useTeamStockSearch(teamId: string, query: string) {
+export function useTeamStockSearch(teamId: string, query: string, category?: string) {
   const [debouncedQuery, setDebouncedQuery] = useState(query);
 
   useEffect(() => {
@@ -107,11 +119,12 @@ export function useTeamStockSearch(teamId: string, query: string) {
   }, [query]);
 
   const params = new URLSearchParams({ q: debouncedQuery });
+  if (category) params.set("category", category);
 
   return useQuery<StockEntry[]>({
-    queryKey: ["teams", teamId, "stock", "search", debouncedQuery],
+    queryKey: ["teams", teamId, "stock", "search", debouncedQuery, category],
     queryFn: () => apiFetch<StockEntry[]>(`/api/teams/${teamId}/stock?${params.toString()}`),
-    enabled: !!teamId,
+    enabled: !!teamId && !!category,
     staleTime: 30_000,
   });
 }

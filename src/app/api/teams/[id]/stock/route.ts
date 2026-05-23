@@ -1,6 +1,7 @@
 import { getTeamStockSummary, searchTeamStock } from "../../../../../lib/teams";
 import { getCurrentUserWithRole } from "../../../../../lib/auth";
 import { Role } from "../../../../../generated/prisma/enums";
+import { ITEM_CATEGORIES, type ItemCategoryEnum } from "../../../../../schemas/items/create-item.schema";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -21,10 +22,14 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") ?? "").trim();
   const isSearch = searchParams.has("q");
+  const rawCategory = searchParams.get("category");
+  const category = ITEM_CATEGORIES.includes(rawCategory as ItemCategoryEnum)
+    ? (rawCategory as ItemCategoryEnum)
+    : undefined;
 
   try {
     if (isSearch) {
-      const results = await searchTeamStock(id, q, SEARCH_LIMIT);
+      const results = await searchTeamStock(id, q, SEARCH_LIMIT, category);
       return NextResponse.json(results);
     }
 

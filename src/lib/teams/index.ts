@@ -3,7 +3,7 @@ import { prisma } from "../prisma";
 
 // ─── Basic CRUD ───────────────────────────────────────────────────────────────
 
-export async function createTeam(data: { name: string; category: ItemCategoryEnum }) {
+export async function createTeam(data: { name: string; categories: ItemCategoryEnum[] }) {
   return prisma.team.create({ data: data as any });
 }
 
@@ -11,15 +11,14 @@ export async function getTeamById(id: string) {
   return prisma.team.findUnique({ where: { id } })
 }
 
-export async function listTeams(category?: ItemCategoryEnum) {
+export async function listTeams() {
   return prisma.team.findMany({
-    where: category ? ({ category } as any) : undefined,
     orderBy: { name: "asc" } as any,
   });
 }
 
-export async function updateTeam(id: string, name: string) {
-  return prisma.team.update({ where: { id }, data: { name } as any })
+export async function updateTeam(id: string, data: { name: string; categories: ItemCategoryEnum[] }) {
+  return prisma.team.update({ where: { id }, data: data as any });
 }
 
 export async function deleteTeam(id: string) {
@@ -33,9 +32,8 @@ export async function deleteTeam(id: string) {
 
 // ─── Teams list with summary (for /teams page) ────────────────────────────────
 
-export async function getTeams(category?: ItemCategoryEnum) {
+export async function getTeams() {
   return prisma.team.findMany({
-    where: category ? ({ category } as any) : undefined,
     orderBy: { name: "asc" } as any,
     include: {
       users: {
@@ -90,10 +88,15 @@ export async function assignUserToTeam(userId: string, teamId: string) {
 }
 
 export async function assignWorkerToTeam(teamId: string, userId: string) {
+  // Unassign anyone currently on this team first (enforces one worker per team)
+  await (prisma.user as any).updateMany({
+    where: { teamId, NOT: { id: userId } },
+    data: { teamId: null },
+  });
   return prisma.user.update({
     where: { id: userId },
     data: { teamId } as any,
-  })
+  });
 }
 
 export async function removeUserFromTeam(userId: string) {
@@ -113,9 +116,12 @@ export async function getTeamStockSummary(teamId: string) {
   });
 }
 
-export async function searchTeamStock(teamId: string, q: string, limit: number) {
+export async function searchTeamStock(teamId: string, q: string, limit: number, category?: ItemCategoryEnum) {
+  const itemFilter: Record<string, unknown> = {};
+  if (q) itemFilter.name = { contains: q, mode: "insensitive" };
+  if (category) itemFilter.category = category;
   const where: Record<string, unknown> = { teamId, quantity: { gt: 0 } };
-  if (q) where.item = { name: { contains: q, mode: "insensitive" } };
+  if (Object.keys(itemFilter).length > 0) where.item = itemFilter;
   return prisma.stock.findMany({
     where: where as any,
     include: { item: true } as any,

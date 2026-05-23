@@ -18,12 +18,12 @@ type Props = {
   role: "ADMIN" | "SUPERVISOR" | "USER";
 };
 
-export function TeamDetailContent({ teamId }: Props) {
+export function TeamDetailContent({ teamId, role }: Props) {
   const t = useTranslations("teams");
 
   return (
     <Box p={{ base: 4, md: 8 }}>
-      <TeamDetailHeader teamId={teamId} />
+      <TeamDetailHeader teamId={teamId} role={role} />
 
       <TabsRoot defaultValue="stock" lazyMount>
         <TabsList mb={4} flexWrap="wrap">

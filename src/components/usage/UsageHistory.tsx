@@ -63,6 +63,7 @@ export function UsageHistory(props: Props) {
               <Table.ColumnHeader>{t("item")}</Table.ColumnHeader>
               <Table.ColumnHeader textAlign="end">{t("quantity")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("purpose")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("location")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("by")}</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
@@ -86,6 +87,9 @@ export function UsageHistory(props: Props) {
                 <Table.Cell textAlign="end" fontWeight="bold">{record.quantity}</Table.Cell>
                 <Table.Cell fontSize="sm" color="gray.700" maxW="200px">
                   <Text truncate>{record.purpose}</Text>
+                </Table.Cell>
+                <Table.Cell fontSize="sm" color="gray.500" maxW="160px">
+                  <Text truncate>{record.location ?? "—"}</Text>
                 </Table.Cell>
                 <Table.Cell fontSize="xs" color="gray.500" whiteSpace="nowrap">
                   {record.user?.name ?? record.user?.email ?? "—"}

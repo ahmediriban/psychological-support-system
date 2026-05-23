@@ -20,11 +20,19 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useTeams } from "../../hooks/teams/useTeams";
 import { useCreateUsage } from "../../hooks/usage/useUsage";
+import type { ItemCategoryEnum } from "../../schemas/items/create-item.schema";
 import { UsageItemSelector, type StockItem } from "./UsageItemSelector";
+
+const CATEGORY_COLORS: Record<string, string> = {
+  MATERIALS_STATIONERY: "blue",
+  FIRST_AID: "red",
+  HYGIENE: "green",
+};
 
 const formSchema = z.object({
   quantity: z.number({ error: "required" }).int().positive(),
   purpose: z.string().min(3),
+  location: z.string().min(2).optional().or(z.literal("")),
 });
 type FormData = z.infer<typeof formSchema>;
 
@@ -37,13 +45,17 @@ type Props = {
 
 export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Props) {
   const t = useTranslations("usage");
+  const tc = useTranslations("categories");
   const mutation = useCreateUsage();
 
   const [activeTeamId, setActiveTeamId] = useState(lockedTeamId ?? "");
+  const [selectedCategory, setSelectedCategory] = useState<ItemCategoryEnum | null>(null);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
 
-  // ADMIN needs team selector
   const { data: teams = [] } = useTeams();
+
+  const activeTeam = teams.find((t) => t.id === activeTeamId) ?? null;
+  const teamCategories: ItemCategoryEnum[] = activeTeam?.categories ?? [];
 
   const {
     register,
@@ -53,15 +65,29 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: { quantity: 1, purpose: "" },
+    defaultValues: { quantity: 1, purpose: "", location: "" },
   });
 
   const quantity = watch("quantity");
 
-  // Reset item when team changes
+  // Reset category + item when team changes
   useEffect(() => {
+    setSelectedCategory(null);
     setSelectedItem(null);
   }, [activeTeamId]);
+
+  // Reset item + full form when category changes
+  useEffect(() => {
+    setSelectedItem(null);
+    reset({ quantity: 1, purpose: "", location: "" });
+  }, [selectedCategory, reset]);
+
+  // Auto-select category when team has only one
+  useEffect(() => {
+    if (teamCategories.length === 1) {
+      setSelectedCategory(teamCategories[0]);
+    }
+  }, [activeTeamId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function onSubmit(data: FormData) {
     if (!selectedItem || !activeTeamId) return;
@@ -71,11 +97,13 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
         teamId: activeTeamId,
         quantity: data.quantity,
         purpose: data.purpose,
+        location: data.location || undefined,
       },
       {
         onSuccess: () => {
-          reset({ quantity: 1, purpose: "" });
+          reset({ quantity: 1, purpose: "", location: "" });
           setSelectedItem(null);
+          setSelectedCategory(teamCategories.length === 1 ? teamCategories[0] : null);
           onSuccess?.();
         },
       }
@@ -118,8 +146,38 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
           </Field.Root>
         )}
 
-        {/* Item selector — only shows when a team is selected */}
-        {activeTeamId && (
+        {/* Category selector — only when team has multiple categories */}
+        {activeTeamId && teamCategories.length > 1 && (
+          <>
+            <Separator />
+            <Box>
+              <Text fontSize="xs" color="gray.500" mb={2} textTransform="uppercase">
+                {tc("category")}
+              </Text>
+              <HStack gap={2} flexWrap="wrap">
+                {teamCategories.map((cat) => {
+                  const isActive = selectedCategory === cat;
+                  const color = CATEGORY_COLORS[cat] ?? "gray";
+                  return (
+                    <Button
+                      key={cat}
+                      size="sm"
+                      variant={isActive ? "solid" : "outline"}
+                      colorPalette={isActive ? color : "gray"}
+                      borderRadius="full"
+                      onClick={() => setSelectedCategory(cat)}
+                    >
+                      {tc(cat)}
+                    </Button>
+                  );
+                })}
+              </HStack>
+            </Box>
+          </>
+        )}
+
+        {/* Item selector — only shows when team + category are selected */}
+        {activeTeamId && selectedCategory && (
           <>
             <Separator />
             <Box>
@@ -128,6 +186,7 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
               </Text>
               <UsageItemSelector
                 teamId={activeTeamId}
+                category={selectedCategory}
                 selectedItemId={selectedItem?.itemId ?? null}
                 onSelect={(item) => {
                   setSelectedItem(item);
@@ -177,6 +236,20 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
               />
               {errors.purpose && (
                 <Field.ErrorText>{t("errorPurposeMin")}</Field.ErrorText>
+              )}
+            </Field.Root>
+
+            <Field.Root invalid={!!errors.location}>
+              <Field.Label>
+                {t("location")}
+                <Text as="span" fontSize="xs" color="gray.400" ms={2}>({t("optional")})</Text>
+              </Field.Label>
+              <Input
+                {...register("location")}
+                placeholder={t("locationPlaceholder")}
+              />
+              {errors.location && (
+                <Field.ErrorText>{t("errorLocationMin")}</Field.ErrorText>
               )}
             </Field.Root>
           </>

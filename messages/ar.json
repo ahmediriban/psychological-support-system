@@ -44,7 +44,9 @@
     "FIRST_AID": "إسعافات أولية",
     "HYGIENE": "مواد تنظيف",
     "category": "الفئة",
-    "selectCategory": "اختر الفئة"
+    "selectCategory": "اختر الفئة",
+    "selectUpTo3": "اختر حتى 3 فئات",
+    "categoryRequired": "يجب اختيار فئة واحدة على الأقل"
   },
   "items": {
     "title": "المواد",
@@ -99,6 +101,10 @@
     "cancel": "إلغاء",
     "selectWorker": "اختر منسق فريق",
     "noWorkers": "لا يوجد منسق فريق متاح",
+    "noAvailableWorkers": "لا يوجد منسق فريق متاح (جميعهم مسندون لفرق أخرى)",
+    "currentWorker": "المنسق الحالي",
+    "replaceWorker": "استبدال المنسق",
+    "current": "الحالي",
     "stockEmpty": "لا يوجد مخزون مسجل",
     "usageEmpty": "لا يوجد استخدام مسجل",
     "distributionEmpty": "لا يوجد توزيع مستلم",
@@ -115,7 +121,8 @@
     "error": "فشل التحميل",
     "deleteTeam": "حذف الفريق",
     "confirmDelete": "هل أنت متأكد من حذف هذا الفريق؟",
-    "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه."
+    "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه.",
+    "location": "مكان الاستخدام"
   },
   "workers": {
     "title": "منسقي الفرق",
@@ -140,7 +147,8 @@
     "cancel": "إلغاء",
     "confirmDelete": "هل أنت متأكد من حذف منسق الفريق؟",
     "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه.",
-    "error": "حدث خطأ أثناء التحميل"
+    "error": "حدث خطأ أثناء التحميل",
+    "assigned": "معيّن"
   },
   "usage": {
     "title": "الاستخدام",
@@ -170,7 +178,11 @@
     "searchItemPlaceholder": "ابحث عن مادة...",
     "searching": "جاري البحث...",
     "changeItem": "تغيير",
-    "noMatchingStock": "لا توجد مواد مطابقة"
+    "noMatchingStock": "لا توجد مواد مطابقة",
+    "location": "مكان الاستخدام",
+    "locationPlaceholder": "مثال: غرفة 3، المبنى الرئيسي...",
+    "optional": "اختياري",
+    "errorLocationMin": "مكان الاستخدام يجب أن يكون حرفين على الأقل"
   },
   "distribution": {
     "title": "التوزيع",

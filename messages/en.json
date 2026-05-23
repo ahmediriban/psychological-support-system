@@ -44,7 +44,9 @@
     "FIRST_AID": "First Aid Kits",
     "HYGIENE": "Hygiene",
     "category": "Category",
-    "selectCategory": "Select Category"
+    "selectCategory": "Select Category",
+    "selectUpTo3": "select up to 3",
+    "categoryRequired": "At least one category is required"
   },
   "items": {
     "title": "Items",
@@ -99,6 +101,10 @@
     "cancel": "Cancel",
     "selectWorker": "Select a worker",
     "noWorkers": "No workers available",
+    "noAvailableWorkers": "No workers available (all are assigned to other teams)",
+    "currentWorker": "Current worker",
+    "replaceWorker": "Replace worker",
+    "current": "current",
     "stockEmpty": "No stock recorded",
     "usageEmpty": "No usage recorded",
     "distributionEmpty": "No distributions received",
@@ -115,7 +121,8 @@
     "error": "Failed to load",
     "deleteTeam": "Delete Team",
     "confirmDelete": "Are you sure you want to delete this team?",
-    "deleteWarning": "This action cannot be undone."
+    "deleteWarning": "This action cannot be undone.",
+    "location": "Location"
   },
   "workers": {
     "title": "Workers",
@@ -140,7 +147,8 @@
     "cancel": "Cancel",
     "confirmDelete": "Are you sure you want to delete this worker?",
     "deleteWarning": "This action cannot be undone.",
-    "error": "Failed to load workers"
+    "error": "Failed to load workers",
+    "assigned": "Assigned"
   },
   "usage": {
     "title": "Usage",
@@ -170,7 +178,11 @@
     "searchItemPlaceholder": "Search for an item...",
     "searching": "Searching...",
     "changeItem": "Change",
-    "noMatchingStock": "No matching items in stock"
+    "noMatchingStock": "No matching items in stock",
+    "location": "Location",
+    "locationPlaceholder": "e.g. Room 3, Main building...",
+    "optional": "optional",
+    "errorLocationMin": "Location must be at least 2 characters"
   },
   "distribution": {
     "title": "Distribution",

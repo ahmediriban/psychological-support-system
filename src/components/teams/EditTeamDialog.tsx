@@ -20,13 +20,15 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 import { useController, useForm } from "react-hook-form";
-import { useCreateTeam } from "../../hooks/teams/useTeams";
+import { useUpdateTeam } from "../../hooks/teams/useTeams";
 import { ITEM_CATEGORIES } from "../../schemas/items/create-item.schema";
 import {
   createTeamSchema,
   type CreateTeamInput,
 } from "../../schemas/teams/create-team.schema";
+import type { TeamSummary } from "../../types/team";
 
 const CATEGORY_COLORS: Record<string, string> = {
   MATERIALS_STATIONERY: "blue",
@@ -35,14 +37,15 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 type Props = {
+  team: TeamSummary;
   open: boolean;
   onClose: () => void;
 };
 
-export function CreateTeamDialog({ open, onClose }: Props) {
+export function EditTeamDialog({ team, open, onClose }: Props) {
   const t = useTranslations("teams");
   const tc = useTranslations("categories");
-  const mutation = useCreateTeam();
+  const mutation = useUpdateTeam();
 
   const {
     register,
@@ -53,10 +56,15 @@ export function CreateTeamDialog({ open, onClose }: Props) {
   } = useForm<CreateTeamInput>({
     resolver: zodResolver(createTeamSchema),
     defaultValues: {
-      name: "",
-      categories: [],
+      name: team.name,
+      categories: team.categories,
     },
   });
+
+  // Sync form when the team prop changes (e.g. opening for a different team)
+  useEffect(() => {
+    reset({ name: team.name, categories: team.categories });
+  }, [team.id, reset]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { field: categoriesField } = useController({ name: "categories", control });
 
@@ -70,18 +78,20 @@ export function CreateTeamDialog({ open, onClose }: Props) {
   }
 
   function handleClose() {
-    reset();
+    reset({ name: team.name, categories: team.categories });
     mutation.reset();
     onClose();
   }
 
   function onSubmit(data: CreateTeamInput) {
-    mutation.mutate(data, {
-      onSuccess: () => {
-        reset();
-        onClose();
-      },
-    });
+    mutation.mutate(
+      { id: team.id, ...data },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      }
+    );
   }
 
   const selected = (categoriesField.value as string[]) ?? [];
@@ -92,7 +102,7 @@ export function CreateTeamDialog({ open, onClose }: Props) {
       <DialogPositioner>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t("createTeam")}</DialogTitle>
+            <DialogTitle>{t("editTeam")}</DialogTitle>
             <DialogCloseTrigger />
           </DialogHeader>
           <DialogBody pb={6}>
@@ -169,15 +179,25 @@ export function CreateTeamDialog({ open, onClose }: Props) {
                   )}
                 </Field.Root>
 
-                <Button
-                  type="submit"
-                  colorPalette="blue"
-                  w="full"
-                  loading={mutation.isPending}
-                  disabled={selected.length === 0}
-                >
-                  {t("save")}
-                </Button>
+                <HStack gap={3}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    flex={1}
+                    onClick={handleClose}
+                  >
+                    {t("cancel")}
+                  </Button>
+                  <Button
+                    type="submit"
+                    colorPalette="blue"
+                    flex={1}
+                    loading={mutation.isPending}
+                    disabled={selected.length === 0}
+                  >
+                    {t("save")}
+                  </Button>
+                </HStack>
               </Stack>
             </form>
           </DialogBody>

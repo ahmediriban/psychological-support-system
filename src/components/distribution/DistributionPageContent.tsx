@@ -54,6 +54,7 @@ export function DistributionPageContent({ role }: Props) {
           <TabsContent value="create">
             <Box maxW={{ base: "100%", md: "560px" }}>
               <DistributionForm
+                key={category}
                 onSuccess={() => setActiveTab("history")}
                 category={category}
               />

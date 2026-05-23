@@ -1,0 +1,1 @@
+ALTER TABLE "UsageLog" ADD COLUMN IF NOT EXISTS "location" TEXT;

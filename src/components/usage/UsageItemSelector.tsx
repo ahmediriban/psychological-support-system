@@ -22,21 +22,21 @@ export type StockItem = {
 
 type Props = {
   teamId: string;
+  category: string;
   selectedItemId: string | null;
   onSelect: (item: StockItem) => void;
   onClear: () => void;
 };
 
-export function UsageItemSelector({ teamId, selectedItemId, onSelect, onClear }: Props) {
+export function UsageItemSelector({ teamId, category, selectedItemId, onSelect, onClear }: Props) {
   const t = useTranslations("usage");
 
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { data: results = [], isLoading } = useTeamStockSearch(teamId, query);
+  const { data: results = [], isLoading } = useTeamStockSearch(teamId, query, category);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -47,11 +47,11 @@ export function UsageItemSelector({ teamId, selectedItemId, onSelect, onClear }:
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Reset query when team changes
+  // Reset query when team or category changes
   useEffect(() => {
     setQuery("");
     setIsOpen(false);
-  }, [teamId]);
+  }, [teamId, category]);
 
   const selectedResult = results.find((s) => s.item.id === selectedItemId) ?? null;
 
