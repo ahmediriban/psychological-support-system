@@ -82,12 +82,14 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
     reset({ quantity: 1, purpose: "", location: "" });
   }, [selectedCategory, reset]);
 
-  // Auto-select category when team has only one
+  // Auto-select category when team has only one.
+  // Also depends on teamCategories.length so it re-fires once the async data arrives
+  // (for USER role, activeTeamId is set before teams data loads).
   useEffect(() => {
     if (teamCategories.length === 1) {
       setSelectedCategory(teamCategories[0]);
     }
-  }, [activeTeamId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTeamId, teamCategories.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function onSubmit(data: FormData) {
     if (!selectedItem || !activeTeamId) return;
