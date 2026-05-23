@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "Inventory System",
+    "description": "Inventory System"
+  },
   "login": {
     "title": "Login",
     "email": "Email",
@@ -25,6 +29,14 @@
     "usage": "Usage",
     "logs": "Logs"
   },
+  "categories": {
+    "filterBy": "Category",
+    "MATERIALS_STATIONERY": "Materials & Stationery",
+    "FIRST_AID": "First Aid Kits",
+    "HYGIENE": "Hygiene",
+    "category": "Category",
+    "selectCategory": "Select Category"
+  },
   "items": {
     "title": "Items",
     "addItem": "Add Item",
@@ -35,6 +47,10 @@
     "nameMin": "Name must be at least 2 characters",
     "unit": "Unit",
     "unitPlaceholder": "piece, box...",
+    "totalQuantity": "Imported Quantity",
+    "totalQuantityPlaceholder": "100",
+    "totalQuantityMin": "Quantity must be at least 1",
+    "available": "Available to distribute",
     "save": "Save",
     "cancel": "Cancel",
     "confirmDelete": "Are you sure you want to delete this item?",
@@ -164,6 +180,9 @@
     "errorHistory": "Failed to load history",
     "errorSelectItem": "Please select an item first",
     "errorSelectTeam": "Please select at least one team",
-    "errorQuantityInvalid": "Please ensure all quantities are greater than zero"
+    "errorQuantityInvalid": "Please ensure all quantities are greater than zero",
+    "errorInsufficientStock": "Quantity exceeds available stock",
+    "available": "Available",
+    "maxQuantity": "Max"
   }
 }

@@ -1,0 +1,9 @@
+-- CreateEnum
+CREATE TYPE "ItemCategory" AS ENUM ('MATERIALS_STATIONERY', 'FIRST_AID', 'HYGIENE');
+
+-- AlterTable
+ALTER TABLE "Item" ADD COLUMN     "category" "ItemCategory" NOT NULL DEFAULT 'MATERIALS_STATIONERY',
+ADD COLUMN     "totalQuantity" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Team" ADD COLUMN     "category" "ItemCategory" NOT NULL DEFAULT 'MATERIALS_STATIONERY';

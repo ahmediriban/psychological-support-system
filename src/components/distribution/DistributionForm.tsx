@@ -11,21 +11,22 @@ import {
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useCreateDistribution } from "../../hooks/distribution/useDistributions";
-import type { Item } from "../../types/item";
+import type { ItemWithAvailable } from "../../hooks/items/useItems";
 import { DistributionSummary } from "./DistributionSummary";
 import { ItemSelector } from "./ItemSelector";
 import { QuantityAllocator, type TeamAllocation } from "./QuantityAllocator";
 
 type Props = {
   onSuccess: () => void;
+  category?: string;
 };
 
-export function DistributionForm({ onSuccess }: Props) {
+export function DistributionForm({ onSuccess, category }: Props) {
   const t = useTranslations("distribution");
   const mutation = useCreateDistribution();
 
   const [step, setStep] = useState(0);
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ItemWithAvailable | null>(null);
   const [allocations, setAllocations] = useState<Map<string, TeamAllocation>>(new Map());
   const [note, setNote] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -59,6 +60,11 @@ export function DistributionForm({ onSuccess }: Props) {
       setValidationError(t("errorQuantityInvalid"));
       return;
     }
+    const totalAllocated = entries.reduce((s, a) => s + a.quantity, 0);
+    if (selectedItem && totalAllocated > selectedItem.availableQuantity) {
+      setValidationError(t("errorInsufficientStock"));
+      return;
+    }
     setValidationError(null);
     setStep(2);
   }
@@ -76,6 +82,11 @@ export function DistributionForm({ onSuccess }: Props) {
         onSuccess: () => {
           reset();
           onSuccess();
+        },
+        onError: (err) => {
+          if (err.message === "INSUFFICIENT_STOCK") {
+            setValidationError(t("errorInsufficientStock"));
+          }
         },
       }
     );
@@ -122,7 +133,7 @@ export function DistributionForm({ onSuccess }: Props) {
       )}
 
       {/* Mutation error */}
-      {mutation.isError && (
+      {mutation.isError && !validationError && (
         <Box px={4} py={3} bg="red.50" borderRadius="md" borderWidth="1px" borderColor="red.200">
           <Text color="red.600" fontSize="sm">{mutation.error.message}</Text>
         </Box>
@@ -135,8 +146,10 @@ export function DistributionForm({ onSuccess }: Props) {
             selectedItemId={selectedItem?.id ?? null}
             onSelect={(item) => {
               setSelectedItem(item);
+              setAllocations(new Map());
               setValidationError(null);
             }}
+            category={category}
           />
           <Button colorPalette="blue" w="full" onClick={goToStep1}>
             {t("next")}
@@ -147,7 +160,12 @@ export function DistributionForm({ onSuccess }: Props) {
       {/* Step 1: Team + quantity allocation */}
       {step === 1 && (
         <Stack gap={4}>
-          <QuantityAllocator allocations={allocations} onChange={setAllocations} />
+          <QuantityAllocator
+            allocations={allocations}
+            onChange={setAllocations}
+            category={category}
+            maxTotal={selectedItem?.availableQuantity}
+          />
           <HStack gap={3}>
             <Button variant="outline" flex={1} onClick={() => { setValidationError(null); setStep(0); }}>
               {t("back")}

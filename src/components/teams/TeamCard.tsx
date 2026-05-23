@@ -26,18 +26,32 @@ type Props = {
   onAssignWorker: (team: TeamSummary) => void;
 };
 
+const CATEGORY_COLORS: Record<string, string> = {
+  MATERIALS_STATIONERY: "blue",
+  FIRST_AID: "red",
+  HYGIENE: "green",
+};
+
 export function TeamCard({ team, isAdmin, onAssignWorker }: Props) {
   const t = useTranslations("teams");
+  const tc = useTranslations("categories");
   const responsibleWorker = team.users[0] ?? null;
   const [showDelete, setShowDelete] = useState(false);
+  const catColor = CATEGORY_COLORS[team.category] ?? "gray";
+
   return (
     <CardRoot size="md" variant="outline" h="full">
       <CardBody>
         <VStack align="stretch" gap={4} h="full">
           <Box>
-            <Heading size="md" mb={1}>
-              {team.name}
-            </Heading>
+            <HStack mb={1} justify="space-between" align="start" gap={2}>
+              <Heading size="md">
+                {team.name}
+              </Heading>
+              <Badge colorPalette={catColor} fontSize="xs" flexShrink={0}>
+                {tc(team.category)}
+              </Badge>
+            </HStack>
             {responsibleWorker ? (
               <Badge colorPalette="green" fontSize="xs">
                 {responsibleWorker.name ?? responsibleWorker.email}

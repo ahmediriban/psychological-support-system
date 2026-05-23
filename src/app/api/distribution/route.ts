@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
     if (err instanceof Error && err.message === "TEAM_NOT_FOUND") {
       return NextResponse.json({ error: "One or more teams not found" }, { status: 404 });
     }
+    if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
+      return NextResponse.json({ error: "INSUFFICIENT_STOCK" }, { status: 422 });
+    }
     return NextResponse.json({ error: "Failed to create distribution" }, { status: 500 });
   }
 }

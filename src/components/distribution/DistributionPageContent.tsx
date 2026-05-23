@@ -13,6 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { useSelectedCategory } from "../../hooks/useSelectedCategory";
+import { CategorySelector } from "../ui/CategorySelector";
 import { DistributionForm } from "./DistributionForm";
 import { DistributionHistory } from "./DistributionHistory";
 
@@ -24,12 +26,17 @@ export function DistributionPageContent({ role }: Props) {
   const t = useTranslations("distribution");
   const isAdmin = role === "ADMIN";
   const [activeTab, setActiveTab] = useState(isAdmin ? "create" : "history");
+  const { category, setCategory } = useSelectedCategory();
 
   return (
     <Box p={{ base: 4, md: 8 }}>
-      <Heading size={{ base: "md", md: "lg" }} mb={6}>
+      <Heading size={{ base: "md", md: "lg" }} mb={4}>
         {t("title")}
       </Heading>
+
+      <Box mb={6}>
+        <CategorySelector value={category} onChange={setCategory} />
+      </Box>
 
       <TabsRoot
         value={activeTab}
@@ -46,7 +53,10 @@ export function DistributionPageContent({ role }: Props) {
         {isAdmin && (
           <TabsContent value="create">
             <Box maxW={{ base: "100%", md: "560px" }}>
-              <DistributionForm onSuccess={() => setActiveTab("history")} />
+              <DistributionForm
+                onSuccess={() => setActiveTab("history")}
+                category={category}
+              />
             </Box>
           </TabsContent>
         )}

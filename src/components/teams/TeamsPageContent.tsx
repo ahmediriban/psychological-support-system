@@ -4,7 +4,9 @@ import { Box, Button, HStack, Heading, Spinner, Text } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useTeams } from "../../hooks/teams/useTeams";
+import { useSelectedCategory } from "../../hooks/useSelectedCategory";
 import type { TeamSummary } from "../../types/team";
+import { CategorySelector } from "../ui/CategorySelector";
 import { AssignWorkerModal } from "./AssignWorkerModal";
 import { CreateTeamDialog } from "./CreateTeamDialog";
 import { TeamList } from "./TeamList";
@@ -17,7 +19,8 @@ export function TeamsPageContent({ role }: Props) {
   const t = useTranslations("teams");
   const isAdmin = role === "ADMIN";
 
-  const { data: teams = [], isLoading, isError } = useTeams();
+  const { category, setCategory } = useSelectedCategory();
+  const { data: teams = [], isLoading, isError } = useTeams(category);
 
   const [showCreate, setShowCreate] = useState(false);
   const [assignTeam, setAssignTeam] = useState<TeamSummary | null>(null);
@@ -40,7 +43,7 @@ export function TeamsPageContent({ role }: Props) {
 
   return (
     <Box p={{ base: 4, md: 8 }}>
-      <HStack justify="space-between" mb={6} gap={3}>
+      <HStack justify="space-between" mb={4} gap={3} flexWrap="wrap">
         <Heading size={{ base: "md", md: "lg" }}>{t("title")}</Heading>
         {isAdmin && (
           <Button
@@ -53,6 +56,10 @@ export function TeamsPageContent({ role }: Props) {
         )}
       </HStack>
 
+      <Box mb={6}>
+        <CategorySelector value={category} onChange={setCategory} />
+      </Box>
+
       <TeamList
         teams={teams}
         isAdmin={isAdmin}
@@ -62,6 +69,7 @@ export function TeamsPageContent({ role }: Props) {
       <CreateTeamDialog
         open={showCreate}
         onClose={() => setShowCreate(false)}
+        defaultCategory={category}
       />
 
       <AssignWorkerModal

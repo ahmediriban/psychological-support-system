@@ -1,18 +1,27 @@
 "use client";
 
-import { Badge, Box, CardBody, CardRoot, HStack, IconButton, Text } from "@chakra-ui/react";
+import { Badge, Box, CardBody, CardRoot, HStack, IconButton, Separator, Text } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import type { Item } from "../../types/item";
+
+const CATEGORY_COLORS: Record<string, string> = {
+  MATERIALS_STATIONERY: "blue",
+  FIRST_AID: "red",
+  HYGIENE: "green",
+};
 
 type Props = {
   item: Item;
   isAdmin: boolean;
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
+  availableQuantity?: number;
 };
 
-export function ItemCard({ item, isAdmin, onEdit, onDelete }: Props) {
+export function ItemCard({ item, isAdmin, onEdit, onDelete, availableQuantity }: Props) {
   const t = useTranslations("items");
+  const tc = useTranslations("categories");
+  const color = CATEGORY_COLORS[item.category] ?? "gray";
 
   return (
     <CardRoot size="sm" variant="outline">
@@ -22,11 +31,16 @@ export function ItemCard({ item, isAdmin, onEdit, onDelete }: Props) {
             <Text fontWeight="semibold" truncate>
               {item.name}
             </Text>
-            {item.unit && (
-              <Badge colorPalette="gray" mt={1} fontSize="xs">
-                {item.unit}
+            <HStack gap={1} mt={1} flexWrap="wrap">
+              <Badge colorPalette={color} fontSize="xs">
+                {tc(item.category)}
               </Badge>
-            )}
+              {item.unit && (
+                <Badge colorPalette="gray" fontSize="xs">
+                  {item.unit}
+                </Badge>
+              )}
+            </HStack>
           </Box>
 
           {isAdmin && (
@@ -50,6 +64,31 @@ export function ItemCard({ item, isAdmin, onEdit, onDelete }: Props) {
                 🗑️
               </IconButton>
             </HStack>
+          )}
+        </HStack>
+
+        <Separator my={2} />
+
+        <HStack justify="space-between" fontSize="xs" color="gray.600">
+          <Box>
+            <Text color="gray.400">{t("totalQuantity")}</Text>
+            <Text fontWeight="semibold" fontSize="sm">
+              {item.totalQuantity}
+              {item.unit ? ` ${item.unit}` : ""}
+            </Text>
+          </Box>
+          {availableQuantity !== undefined && (
+            <Box textAlign="end">
+              <Text color="gray.400">{t("available")}</Text>
+              <Text
+                fontWeight="semibold"
+                fontSize="sm"
+                color={availableQuantity === 0 ? "red.500" : "green.600"}
+              >
+                {availableQuantity}
+                {item.unit ? ` ${item.unit}` : ""}
+              </Text>
+            </Box>
           )}
         </HStack>
       </CardBody>

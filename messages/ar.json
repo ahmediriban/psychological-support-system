@@ -1,4 +1,8 @@
 {
+  "metadata": {
+    "title": "نظام المخزون",
+    "description": "نظام المخزون"
+  },
   "login": {
     "title": "تسجيل الدخول",
     "email": "البريد الإلكتروني",
@@ -25,6 +29,14 @@
     "usage": "الاستخدام",
     "logs": "السجلات"
   },
+  "categories": {
+    "filterBy": "الفئة",
+    "MATERIALS_STATIONERY": "مواد ومستلزمات",
+    "FIRST_AID": "إسعافات أولية",
+    "HYGIENE": "نظافة شخصية",
+    "category": "الفئة",
+    "selectCategory": "اختر الفئة"
+  },
   "items": {
     "title": "المواد",
     "addItem": "إضافة مادة",
@@ -35,6 +47,10 @@
     "nameMin": "الاسم يجب أن يكون حرفين على الأقل",
     "unit": "الوحدة",
     "unitPlaceholder": "قطعة، صندوق...",
+    "totalQuantity": "الكمية المستوردة",
+    "totalQuantityPlaceholder": "100",
+    "totalQuantityMin": "الكمية يجب أن تكون 1 على الأقل",
+    "available": "المتاح للتوزيع",
     "save": "حفظ",
     "cancel": "إلغاء",
     "confirmDelete": "هل أنت متأكد من حذف هذه المادة؟",
@@ -164,6 +180,9 @@
     "errorHistory": "خطأ في تحميل السجل",
     "errorSelectItem": "يرجى اختيار مادة أولاً",
     "errorSelectTeam": "يرجى اختيار فريق واحد على الأقل",
-    "errorQuantityInvalid": "يرجى التأكد من صحة الكميات (يجب أن تكون أكبر من صفر)"
+    "errorQuantityInvalid": "يرجى التأكد من صحة الكميات (يجب أن تكون أكبر من صفر)",
+    "errorInsufficientStock": "الكمية تتجاوز المتاح للتوزيع",
+    "available": "المتاح",
+    "maxQuantity": "الحد الأقصى"
   }
 }

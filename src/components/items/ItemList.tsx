@@ -2,11 +2,12 @@
 
 import { EmptyStateDescription, EmptyStateRoot, EmptyStateTitle, SimpleGrid } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
+import type { ItemWithAvailable } from "../../hooks/items/useItems";
 import type { Item } from "../../types/item";
 import { ItemCard } from "./ItemCard";
 
 type Props = {
-  items: Item[];
+  items: ItemWithAvailable[];
   isAdmin: boolean;
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
@@ -35,6 +36,7 @@ export function ItemList({ items, isAdmin, onEdit, onDelete }: Props) {
           isAdmin={isAdmin}
           onEdit={onEdit}
           onDelete={onDelete}
+          availableQuantity={item.availableQuantity}
         />
       ))}
     </SimpleGrid>

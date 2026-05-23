@@ -18,8 +18,10 @@ import {
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useCreateItem, useItems } from "../../hooks/items/useItems";
+import { useCreateItem, useItemsWithAvailable } from "../../hooks/items/useItems";
+import { useSelectedCategory } from "../../hooks/useSelectedCategory";
 import type { Item } from "../../types/item";
+import { CategorySelector } from "../ui/CategorySelector";
 import { DeleteItemDialog } from "./DeleteItemDialog";
 import { EditItemDialog } from "./EditItemDialog";
 import { ItemForm } from "./ItemForm";
@@ -33,7 +35,8 @@ export function ItemsPageContent({ role }: Props) {
   const t = useTranslations("items");
   const isAdmin = role === "ADMIN";
 
-  const { data: items = [], isLoading, isError } = useItems();
+  const { category, setCategory } = useSelectedCategory();
+  const { data: items = [], isLoading, isError } = useItemsWithAvailable(category);
   const createMutation = useCreateItem();
 
   const [showCreate, setShowCreate] = useState(false);
@@ -58,7 +61,7 @@ export function ItemsPageContent({ role }: Props) {
 
   return (
     <Box p={{ base: 4, md: 8 }}>
-      <HStack justify="space-between" mb={6} gap={3}>
+      <HStack justify="space-between" mb={4} gap={3} flexWrap="wrap">
         <Heading size={{ base: "md", md: "lg" }}>{t("title")}</Heading>
         {isAdmin && (
           <Button
@@ -70,6 +73,10 @@ export function ItemsPageContent({ role }: Props) {
           </Button>
         )}
       </HStack>
+
+      <Box mb={6}>
+        <CategorySelector value={category} onChange={setCategory} />
+      </Box>
 
       <ItemList
         items={items}
@@ -94,6 +101,7 @@ export function ItemsPageContent({ role }: Props) {
                 </Text>
               )}
               <ItemForm
+                defaultValues={{ name: "", category }}
                 onSubmit={(data) =>
                   createMutation.mutate(data, { onSuccess: () => setShowCreate(false) })
                 }

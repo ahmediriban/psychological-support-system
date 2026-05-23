@@ -1,17 +1,21 @@
-import { prisma } from "../prisma"
+import type { ItemCategoryEnum } from "../../schemas/items/create-item.schema";
+import { prisma } from "../prisma";
 
 // ─── Basic CRUD ───────────────────────────────────────────────────────────────
 
-export async function createTeam(data: { name: string }) {
-  return prisma.team.create({ data: data as any })
+export async function createTeam(data: { name: string; category: ItemCategoryEnum }) {
+  return prisma.team.create({ data: data as any });
 }
 
 export async function getTeamById(id: string) {
   return prisma.team.findUnique({ where: { id } })
 }
 
-export async function listTeams() {
-  return prisma.team.findMany({ orderBy: { name: "asc" } as any })
+export async function listTeams(category?: ItemCategoryEnum) {
+  return prisma.team.findMany({
+    where: category ? ({ category } as any) : undefined,
+    orderBy: { name: "asc" } as any,
+  });
 }
 
 export async function updateTeam(id: string, name: string) {
@@ -34,8 +38,9 @@ export async function deleteTeam(id: string) {
 
 // ─── Teams list with summary (for /teams page) ────────────────────────────────
 
-export async function getTeams() {
+export async function getTeams(category?: ItemCategoryEnum) {
   return prisma.team.findMany({
+    where: category ? ({ category } as any) : undefined,
     orderBy: { name: "asc" } as any,
     include: {
       users: {

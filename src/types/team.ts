@@ -1,3 +1,5 @@
+import type { ItemCategoryEnum } from "../schemas/items/create-item.schema";
+
 export type TeamWorker = {
   id: string;
   name: string | null;
@@ -9,6 +11,7 @@ export type TeamWorker = {
 export type TeamSummary = {
   id: string;
   name: string;
+  category: ItemCategoryEnum;
   createdAt: string;
   users: TeamWorker[];
   _count: {
@@ -21,6 +24,7 @@ export type TeamSummary = {
 export type TeamDetail = {
   id: string;
   name: string;
+  category: ItemCategoryEnum;
   createdAt: string;
   users: (TeamWorker & { role: string })[];
 };

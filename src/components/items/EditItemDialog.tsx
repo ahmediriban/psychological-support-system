@@ -13,6 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import { useUpdateItem } from "../../hooks/items/useItems";
+import type { CreateItemInput } from "../../schemas/items/create-item.schema";
 import type { Item } from "../../types/item";
 import { ItemForm } from "./ItemForm";
 
@@ -26,7 +27,7 @@ export function EditItemDialog({ item, open, onClose }: Props) {
   const t = useTranslations("items");
   const mutation = useUpdateItem();
 
-  function handleSubmit(data: { name: string; unit?: string }) {
+  function handleSubmit(data: CreateItemInput) {
     if (!item) return;
     mutation.mutate(
       { id: item.id, ...data },

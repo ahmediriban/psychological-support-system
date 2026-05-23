@@ -21,11 +21,16 @@ export type TeamAllocation = {
 type Props = {
   allocations: Map<string, TeamAllocation>;
   onChange: (allocations: Map<string, TeamAllocation>) => void;
+  category?: string;
+  maxTotal?: number;
 };
 
-export function QuantityAllocator({ allocations, onChange }: Props) {
+export function QuantityAllocator({ allocations, onChange, category, maxTotal }: Props) {
   const t = useTranslations("distribution");
-  const { data: teams = [], isLoading, isError } = useTeams();
+  const { data: teams = [], isLoading, isError } = useTeams(category);
+
+  const total = Array.from(allocations.values()).reduce((s, a) => s + a.quantity, 0);
+  const remaining = maxTotal !== undefined ? maxTotal - total : undefined;
 
   function toggleTeam(teamId: string, teamName: string) {
     const next = new Map(allocations);
@@ -40,12 +45,17 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
   function setQuantity(teamId: string, teamName: string, raw: string) {
     const quantity = parseInt(raw, 10);
     if (isNaN(quantity) || quantity < 0) return;
+    // Enforce max: don't allow going over total budget
+    if (maxTotal !== undefined) {
+      const otherTotal = Array.from(allocations.values())
+        .filter((a) => a.teamId !== teamId)
+        .reduce((s, a) => s + a.quantity, 0);
+      if (quantity + otherTotal > maxTotal) return;
+    }
     const next = new Map(allocations);
     next.set(teamId, { teamId, teamName, quantity });
     onChange(next);
   }
-
-  const total = Array.from(allocations.values()).reduce((s, a) => s + a.quantity, 0);
 
   if (isLoading) {
     return (
@@ -62,6 +72,29 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
     <Stack gap={3}>
       <Text fontSize="sm" color="gray.500">{t("selectTeamsHint")}</Text>
 
+      {maxTotal !== undefined && (
+        <HStack
+          px={4}
+          py={2}
+          bg="blue.50"
+          borderRadius="md"
+          justify="space-between"
+          _dark={{ bg: "blue.900" }}
+        >
+          <Text fontSize="sm" fontWeight="semibold" color="blue.700" _dark={{ color: "blue.200" }}>
+            {t("available")}:
+          </Text>
+          <Text
+            fontSize="sm"
+            fontWeight="bold"
+            color={remaining === 0 ? "red.500" : "blue.700"}
+            _dark={{ color: remaining === 0 ? "red.300" : "blue.200" }}
+          >
+            {remaining}
+          </Text>
+        </HStack>
+      )}
+
       {teams.map((team) => {
         const alloc = allocations.get(team.id);
         const isSelected = !!alloc;
@@ -75,7 +108,6 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
             overflow="hidden"
             transition="all 0.1s"
           >
-            {/* Team toggle row */}
             <HStack
               px={4}
               py={3}
@@ -108,7 +140,6 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
               </Box>
             </HStack>
 
-            {/* Quantity input (only when selected) */}
             {isSelected && (
               <>
                 <Separator />
@@ -119,6 +150,7 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
                   <Input
                     type="number"
                     min={1}
+                    max={maxTotal !== undefined ? maxTotal : undefined}
                     size="sm"
                     value={alloc.quantity || ""}
                     onChange={(e) => setQuantity(team.id, team.name, e.target.value)}
@@ -126,6 +158,11 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
                     w="full"
                     maxW="120px"
                   />
+                  {maxTotal !== undefined && (
+                    <Text fontSize="xs" color="gray.400">
+                      {t("maxQuantity")}: {maxTotal}
+                    </Text>
+                  )}
                 </HStack>
               </>
             )}
@@ -141,7 +178,13 @@ export function QuantityAllocator({ allocations, onChange }: Props) {
           borderColor="gray.200"
         >
           <Text fontWeight="semibold" fontSize="sm">{t("totalQuantity")}:</Text>
-          <Text fontWeight="bold" colorPalette="blue">{total}</Text>
+          <Text
+            fontWeight="bold"
+            color={maxTotal !== undefined && total > maxTotal ? "red.500" : "blue.600"}
+          >
+            {total}
+            {maxTotal !== undefined && ` / ${maxTotal}`}
+          </Text>
         </HStack>
       )}
     </Stack>

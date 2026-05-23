@@ -1,3 +1,4 @@
+import { getAvailableQuantity } from "../items";
 import { prisma } from "../prisma";
 import type { DistributionMeta, DistributionRecord } from "../../types/distribution";
 
@@ -123,6 +124,9 @@ export async function createDistribution(
   if (missingTeam) throw new Error("TEAM_NOT_FOUND");
 
   const totalQuantity = data.teams.reduce((sum, t) => sum + t.quantity, 0);
+
+  const available = await getAvailableQuantity(data.itemId);
+  if (totalQuantity > available) throw new Error("INSUFFICIENT_STOCK");
 
   const meta: DistributionMeta = {
     itemId: item.id,

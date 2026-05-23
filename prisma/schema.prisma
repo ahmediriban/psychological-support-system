@@ -57,12 +57,20 @@ model Team {
   id   String @id @default(cuid())
   name String // "Khan Younis", "Deir"
 
+  category ItemCategory @default(MATERIALS_STATIONERY)
+
   users  User[]
   stocks Stock[]
   usages UsageLog[]
   txs    StockTransaction[]
 
   createdAt DateTime @default(now())
+}
+
+enum ItemCategory {
+  MATERIALS_STATIONERY
+  FIRST_AID
+  HYGIENE
 }
 
 //
@@ -75,6 +83,9 @@ model Item {
   id   String  @id @default(cuid())
   name String
   unit String? // box, piece, etc
+
+  category      ItemCategory @default(MATERIALS_STATIONERY)
+  totalQuantity Int          @default(0)
 
   stocks Stock[]
   usages UsageLog[]

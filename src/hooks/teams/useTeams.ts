@@ -21,10 +21,11 @@ async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
 
 // ─── Teams list ───────────────────────────────────────────────────────────────
 
-export function useTeams() {
+export function useTeams(category?: string) {
+  const url = category ? `/api/teams?category=${category}` : "/api/teams";
   return useQuery<TeamSummary[]>({
-    queryKey: ["teams"],
-    queryFn: () => apiFetch<TeamSummary[]>("/api/teams"),
+    queryKey: ["teams", category],
+    queryFn: () => apiFetch<TeamSummary[]>(url),
   });
 }
 

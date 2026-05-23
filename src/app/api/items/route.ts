@@ -1,7 +1,7 @@
 import { createItem, listItems } from "../../../lib/items";
 import { getCurrentUserWithRole } from "../../../lib/auth";
 import { Role } from "../../../generated/prisma/enums";
-import { createItemSchema } from "../../../schemas/items/create-item.schema";
+import { createItemSchema, ITEM_CATEGORIES, type ItemCategoryEnum } from "../../../schemas/items/create-item.schema";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,13 +9,19 @@ async function getAuthedUser() {
   return getCurrentUserWithRole(await headers());
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const user = await getAuthedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (user.role === Role.USER) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  const { searchParams } = new URL(req.url);
+  const rawCategory = searchParams.get("category");
+  const category = ITEM_CATEGORIES.includes(rawCategory as ItemCategoryEnum)
+    ? (rawCategory as ItemCategoryEnum)
+    : undefined;
+
   try {
-    const items = await listItems();
+    const items = await listItems(category);
     return NextResponse.json(items);
   } catch {
     return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });

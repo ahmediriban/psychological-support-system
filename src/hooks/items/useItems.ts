@@ -14,10 +14,21 @@ async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   return res.status === 204 ? (undefined as T) : res.json();
 }
 
-export function useItems() {
+export function useItems(category?: string) {
+  const url = category ? `/api/items?category=${category}` : "/api/items";
   return useQuery<Item[]>({
-    queryKey: QUERY_KEY,
-    queryFn: () => apiFetch<Item[]>("/api/items"),
+    queryKey: [...QUERY_KEY, category],
+    queryFn: () => apiFetch<Item[]>(url),
+  });
+}
+
+export type ItemWithAvailable = Item & { availableQuantity: number };
+
+export function useItemsWithAvailable(category?: string) {
+  const url = category ? `/api/items/available?category=${category}` : "/api/items/available";
+  return useQuery<ItemWithAvailable[]>({
+    queryKey: ["items", "available", category],
+    queryFn: () => apiFetch<ItemWithAvailable[]>(url),
   });
 }
 
