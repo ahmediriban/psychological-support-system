@@ -1,6 +1,8 @@
 import type { ItemCategoryEnum } from "../../schemas/items/create-item.schema";
 import { prisma } from "../prisma";
 
+// ─── Basic CRUD ───────────────────────────────────────────────────────────────
+
 export async function createItem(data: {
   name: string;
   unit?: string;
@@ -32,19 +34,50 @@ export async function deleteItem(id: string) {
   return prisma.item.delete({ where: { id } });
 }
 
-/** Total already distributed for an item across all teams */
-export async function getDistributedQuantity(itemId: string): Promise<number> {
-  const result = await (prisma.stockTransaction as any).aggregate({
-    where: { itemId, type: "GIVE" },
-    _sum: { quantity: true },
-  });
-  return result._sum.quantity ?? 0;
+// ─── List/search with available quantity ──────────────────────────────────────
+// totalQuantity IS the available quantity — it decrements on every distribution.
+
+export async function listItemsWithAvailable(category?: ItemCategoryEnum) {
+  const items = await listItems(category);
+  return (items as any[]).map((item) => ({ ...item, availableQuantity: item.totalQuantity }));
 }
 
-/** Available to distribute = totalQuantity - already distributed */
-export async function getAvailableQuantity(itemId: string): Promise<number> {
-  const item = await prisma.item.findUnique({ where: { id: itemId } });
-  if (!item) return 0;
-  const distributed = await getDistributedQuantity(itemId);
-  return Math.max(0, (item as any).totalQuantity - distributed);
+export async function listItemsPagedWithAvailable(
+  category: ItemCategoryEnum | undefined,
+  page: number,
+  pageSize: number
+) {
+  const where = category ? ({ category } as any) : undefined;
+  const [items, total] = await Promise.all([
+    prisma.item.findMany({
+      where,
+      orderBy: { name: "asc" } as any,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.item.count({ where }),
+  ]);
+  return {
+    data: (items as any[]).map((item) => ({ ...item, availableQuantity: item.totalQuantity })),
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
+
+export async function searchItemsWithAvailable(
+  q: string,
+  category: ItemCategoryEnum | undefined,
+  limit: number
+) {
+  const where: Record<string, unknown> = {};
+  if (category) where.category = category;
+  if (q) where.name = { contains: q, mode: "insensitive" };
+  const items = await prisma.item.findMany({
+    where: where as any,
+    orderBy: { name: "asc" } as any,
+    take: limit,
+  });
+  return (items as any[]).map((item) => ({ ...item, availableQuantity: item.totalQuantity }));
 }

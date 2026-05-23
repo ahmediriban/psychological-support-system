@@ -149,6 +149,11 @@ export function DistributionForm({ onSuccess, category }: Props) {
               setAllocations(new Map());
               setValidationError(null);
             }}
+            onClear={() => {
+              setSelectedItem(null);
+              setAllocations(new Map());
+              setValidationError(null);
+            }}
             category={category}
           />
           <Button colorPalette="blue" w="full" onClick={goToStep1}>

@@ -29,6 +29,11 @@
     "usage": "Usage",
     "logs": "Logs"
   },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "showing": "Showing {from}–{to} of {total}"
+  },
   "categories": {
     "filterBy": "Category",
     "MATERIALS_STATIONERY": "Materials & Stationery",
@@ -146,7 +151,11 @@
     "errorHistory": "Failed to load history",
     "errorQuantityInvalid": "Quantity must be a positive number",
     "errorOverStock": "Quantity exceeds available stock ({max})",
-    "errorPurposeMin": "Purpose must be at least 3 characters"
+    "errorPurposeMin": "Purpose must be at least 3 characters",
+    "searchItemPlaceholder": "Search for an item...",
+    "searching": "Searching...",
+    "changeItem": "Change",
+    "noMatchingStock": "No matching items in stock"
   },
   "distribution": {
     "title": "Distribution",
@@ -183,6 +192,10 @@
     "errorQuantityInvalid": "Please ensure all quantities are greater than zero",
     "errorInsufficientStock": "Quantity exceeds available stock",
     "available": "Available",
-    "maxQuantity": "Max"
+    "maxQuantity": "Max",
+    "searchItemPlaceholder": "Search for an item...",
+    "searching": "Searching...",
+    "outOfStock": "Out of stock",
+    "changeItem": "Change"
   }
 }

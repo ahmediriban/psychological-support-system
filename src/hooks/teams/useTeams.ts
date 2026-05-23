@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import type { AssignWorkerInput } from "../../schemas/teams/assign-worker.schema";
 import type { CreateTeamInput } from "../../schemas/teams/create-team.schema";
 import type {
@@ -94,6 +95,24 @@ export function useTeamStock(teamId: string) {
     queryKey: ["teams", teamId, "stock"],
     queryFn: () => apiFetch<StockEntry[]>(`/api/teams/${teamId}/stock`),
     enabled: !!teamId,
+  });
+}
+
+export function useTeamStockSearch(teamId: string, query: string) {
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  const params = new URLSearchParams({ q: debouncedQuery });
+
+  return useQuery<StockEntry[]>({
+    queryKey: ["teams", teamId, "stock", "search", debouncedQuery],
+    queryFn: () => apiFetch<StockEntry[]>(`/api/teams/${teamId}/stock?${params.toString()}`),
+    enabled: !!teamId,
+    staleTime: 30_000,
   });
 }
 

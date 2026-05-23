@@ -1,4 +1,3 @@
-import { getAvailableQuantity } from "../items";
 import { prisma } from "../prisma";
 import type { DistributionMeta, DistributionRecord } from "../../types/distribution";
 
@@ -42,60 +41,49 @@ export async function getDistributionById(id: string): Promise<DistributionRecor
   };
 }
 
-// Returns current team stock state for an item — useful for showing what
-// each team already has before distributing more.
-export async function calculateStockAfterDistribution(itemId: string) {
-  return prisma.stock.findMany({
-    where: { itemId } as any,
-    include: { team: { select: { id: true, name: true } } },
-    orderBy: { team: { name: "asc" } } as any,
-  });
-}
-
 // ─── Write helpers (called inside transaction) ───────────────────────────────
 
-// Upserts Stock + creates GIVE transactions for every team entry.
-// Must be called inside a Prisma $transaction context.
 async function applyDistributionToTeams(
   tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
   itemId: string,
   teams: TeamEntry[],
   note?: string
 ) {
-  for (const entry of teams) {
-    // Increase team stock (create if first time)
-    await tx.stock.upsert({
-      where: { itemId_teamId: { itemId, teamId: entry.teamId } },
-      create: { itemId, teamId: entry.teamId, quantity: entry.quantity },
-      update: { quantity: { increment: entry.quantity } },
-    } as any);
-
-    // Immutable transaction record
-    await tx.stockTransaction.create({
-      data: {
-        itemId,
-        teamId: entry.teamId,
-        type: "GIVE",
-        quantity: entry.quantity,
-        note: note ?? null,
-      } as any,
-    });
-  }
+  // All teams are written in parallel — different rows so no deadlock risk
+  await Promise.all(
+    teams.map((entry) =>
+      Promise.all([
+        (tx.stock as any).upsert({
+          where: { itemId_teamId: { itemId, teamId: entry.teamId } },
+          create: { itemId, teamId: entry.teamId, quantity: entry.quantity },
+          update: { quantity: { increment: entry.quantity } },
+        }),
+        (tx.stockTransaction as any).create({
+          data: {
+            itemId,
+            teamId: entry.teamId,
+            type: "GIVE",
+            quantity: entry.quantity,
+            note: note ?? null,
+          },
+        }),
+      ])
+    )
+  );
 }
 
-// Creates the AuditLog distribution record inside a transaction context.
 async function createDistributionLog(
   tx: Omit<typeof prisma, "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends">,
   meta: DistributionMeta,
   createdById: string
 ) {
-  return tx.auditLog.create({
+  return (tx.auditLog as any).create({
     data: {
       userId: createdById,
       action: "DISTRIBUTION",
       entity: "StockTransaction",
       metadata: meta as any,
-    } as any,
+    },
   });
 }
 
@@ -105,11 +93,10 @@ export async function createDistribution(
   data: CreateDistributionData,
   createdById: string
 ): Promise<DistributionRecord> {
-  // Pre-fetch item and teams outside the transaction to minimise lock time
   const [item, teams] = await Promise.all([
     prisma.item.findUnique({
       where: { id: data.itemId },
-      select: { id: true, name: true, unit: true },
+      select: { id: true, name: true, unit: true, totalQuantity: true },
     }),
     prisma.team.findMany({
       where: { id: { in: data.teams.map((t) => t.teamId) } } as any,
@@ -124,9 +111,7 @@ export async function createDistribution(
   if (missingTeam) throw new Error("TEAM_NOT_FOUND");
 
   const totalQuantity = data.teams.reduce((sum, t) => sum + t.quantity, 0);
-
-  const available = await getAvailableQuantity(data.itemId);
-  if (totalQuantity > available) throw new Error("INSUFFICIENT_STOCK");
+  if (totalQuantity > (item as any).totalQuantity) throw new Error("INSUFFICIENT_STOCK");
 
   const meta: DistributionMeta = {
     itemId: item.id,
@@ -141,9 +126,14 @@ export async function createDistribution(
     note: data.note,
   };
 
-  // Atomic: stock upsert + transaction records + audit log all in one DB tx
   const log = await prisma.$transaction(async (tx) => {
-    await applyDistributionToTeams(tx as any, data.itemId, data.teams, data.note);
+    await Promise.all([
+      applyDistributionToTeams(tx as any, data.itemId, data.teams, data.note),
+      (tx.item as any).update({
+        where: { id: data.itemId },
+        data: { totalQuantity: { decrement: totalQuantity } },
+      }),
+    ]);
     return createDistributionLog(tx as any, meta, createdById);
   });
 
@@ -151,6 +141,6 @@ export async function createDistribution(
     id: log.id,
     createdAt: log.createdAt.toISOString(),
     metadata: meta,
-    user: { id: createdById, name: null, email: "" }, // enriched on read
+    user: { id: createdById, name: null, email: "" },
   };
 }

@@ -131,7 +131,10 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
                 selectedItemId={selectedItem?.itemId ?? null}
                 onSelect={(item) => {
                   setSelectedItem(item);
-                  // Reset quantity when changing item
+                  reset((v) => ({ ...v, quantity: 1 }));
+                }}
+                onClear={() => {
+                  setSelectedItem(null);
                   reset((v) => ({ ...v, quantity: 1 }));
                 }}
               />

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import type { CreateItemInput } from "../../schemas/items/create-item.schema";
 import type { UpdateItemInput } from "../../schemas/items/update-item.schema";
 import type { Item } from "../../types/item";
@@ -24,11 +25,32 @@ export function useItems(category?: string) {
 
 export type ItemWithAvailable = Item & { availableQuantity: number };
 
+export type PagedItemsResponse = {
+  data: ItemWithAvailable[];
+  total: number;
+  page: number;
+  totalPages: number;
+  pageSize: number;
+};
+
+// Unpaginated — used by distribution item selector (needs all items)
 export function useItemsWithAvailable(category?: string) {
   const url = category ? `/api/items/available?category=${category}` : "/api/items/available";
   return useQuery<ItemWithAvailable[]>({
     queryKey: ["items", "available", category],
     queryFn: () => apiFetch<ItemWithAvailable[]>(url),
+  });
+}
+
+// Paginated — used by the items management page
+export function useItemsWithAvailablePaged(category: string | undefined, page: number) {
+  const params = new URLSearchParams({ page: String(page) });
+  if (category) params.set("category", category);
+  const url = `/api/items/available?${params.toString()}`;
+  return useQuery<PagedItemsResponse>({
+    queryKey: ["items", "available", "paged", category, page],
+    queryFn: () => apiFetch<PagedItemsResponse>(url),
+    placeholderData: (prev) => prev,
   });
 }
 
@@ -55,6 +77,25 @@ export function useUpdateItem() {
         body: JSON.stringify(data),
       }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+  });
+}
+
+// Search items with debounce — used by autocomplete item selector
+export function useItemSearch(query: string, category?: string) {
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(query), 300);
+    return () => clearTimeout(id);
+  }, [query]);
+
+  const params = new URLSearchParams({ q: debouncedQuery });
+  if (category) params.set("category", category);
+
+  return useQuery<ItemWithAvailable[]>({
+    queryKey: ["items", "search", debouncedQuery, category],
+    queryFn: () => apiFetch<ItemWithAvailable[]>(`/api/items-search?${params.toString()}`),
+    staleTime: 30_000,
   });
 }
 

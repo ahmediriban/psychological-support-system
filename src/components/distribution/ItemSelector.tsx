@@ -3,83 +3,201 @@
 import {
   Badge,
   Box,
-  CardBody,
-  CardRoot,
-  SimpleGrid,
-  Skeleton,
+  HStack,
+  Input,
+  Spinner,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
-import { useItemsWithAvailable, type ItemWithAvailable } from "../../hooks/items/useItems";
+import { useEffect, useRef, useState } from "react";
+import { useItemSearch, type ItemWithAvailable } from "../../hooks/items/useItems";
 
 type Props = {
   selectedItemId: string | null;
   onSelect: (item: ItemWithAvailable) => void;
+  onClear: () => void;
   category?: string;
 };
 
-export function ItemSelector({ selectedItemId, onSelect, category }: Props) {
+export function ItemSelector({ selectedItemId, onSelect, onClear, category }: Props) {
   const t = useTranslations("distribution");
   const ti = useTranslations("items");
-  const { data: items = [], isLoading, isError } = useItemsWithAvailable(category);
 
-  if (isLoading) {
-    return (
-      <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
-        {[1, 2, 3, 4].map((i) => <Skeleton key={i} h="88px" borderRadius="md" />)}
-      </SimpleGrid>
-    );
+  const [query, setQuery] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { data: results = [], isLoading } = useItemSearch(query, category);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // When category changes, clear any query so results refresh
+  useEffect(() => {
+    setQuery("");
+  }, [category]);
+
+  const selectedItem = results.find((i) => i.id === selectedItemId) ?? null;
+
+  function handleInputChange(value: string) {
+    setQuery(value);
+    setIsOpen(true);
   }
 
-  if (isError) {
-    return <Text color="red.500">{t("errorItems")}</Text>;
+  function handleSelect(item: ItemWithAvailable) {
+    if (item.availableQuantity === 0) return;
+    onSelect(item);
+    setQuery("");
+    setIsOpen(false);
   }
 
-  if (items.length === 0) {
-    return <Text color="gray.500">{t("noItems")}</Text>;
+  function handleFocus() {
+    setIsOpen(true);
   }
 
   return (
-    <Stack gap={2}>
-      <Text fontSize="sm" color="gray.500" mb={1}>{t("selectItemHint")}</Text>
-      <SimpleGrid columns={{ base: 1, sm: 2 }} gap={3}>
-        {items.map((item) => {
-          const isSelected = item.id === selectedItemId;
-          const outOfStock = item.availableQuantity === 0;
-          return (
-            <CardRoot
-              key={item.id}
-              size="sm"
-              variant="outline"
-              cursor={outOfStock ? "not-allowed" : "pointer"}
-              borderColor={isSelected ? "blue.500" : outOfStock ? "red.200" : "gray.200"}
-              bg={isSelected ? "blue.50" : outOfStock ? "red.50" : "white"}
-              _dark={{ bg: isSelected ? "blue.900" : outOfStock ? "red.950" : "transparent" }}
-              onClick={() => !outOfStock && onSelect(item)}
-              transition="all 0.1s"
-              opacity={outOfStock ? 0.7 : 1}
-            >
-              <CardBody>
-                <Text fontWeight={isSelected ? "semibold" : "medium"}>
-                  {item.name}
-                </Text>
-                {item.unit && (
-                  <Badge colorPalette={isSelected ? "blue" : "gray"} mt={1} fontSize="xs">
-                    {item.unit}
-                  </Badge>
+    <Stack gap={3}>
+      <Text fontSize="sm" color="gray.500">{t("selectItemHint")}</Text>
+
+      {/* Selected item chip */}
+      {selectedItem && (
+        <Box
+          px={3}
+          py={2}
+          borderRadius="md"
+          bg="blue.50"
+          borderWidth="1px"
+          borderColor="blue.300"
+          _dark={{ bg: "blue.900", borderColor: "blue.600" }}
+        >
+          <HStack justify="space-between" gap={2}>
+            <Box minW={0}>
+              <Text fontWeight="semibold" fontSize="sm" truncate>
+                {selectedItem.name}
+              </Text>
+              <HStack gap={1} mt={0.5}>
+                {selectedItem.unit && (
+                  <Badge colorPalette="blue" fontSize="xs">{selectedItem.unit}</Badge>
                 )}
-                <Box mt={2}>
-                  <Text fontSize="xs" color={outOfStock ? "red.500" : "green.600"} fontWeight="semibold">
-                    {ti("available")}: {item.availableQuantity}
-                    {item.unit ? ` ${item.unit}` : ""}
-                  </Text>
-                </Box>
-              </CardBody>
-            </CardRoot>
-          );
-        })}
-      </SimpleGrid>
+                <Text fontSize="xs" color="green.600" fontWeight="medium">
+                  {ti("available")}: {selectedItem.availableQuantity}
+                  {selectedItem.unit ? ` ${selectedItem.unit}` : ""}
+                </Text>
+              </HStack>
+            </Box>
+            <Text
+              fontSize="xs"
+              color="blue.500"
+              cursor="pointer"
+              flexShrink={0}
+              onClick={() => {
+                onClear();
+                setQuery("");
+                setIsOpen(true);
+              }}
+            >
+              {t("changeItem")}
+            </Text>
+          </HStack>
+        </Box>
+      )}
+
+      {/* Search input + dropdown */}
+      <Box ref={containerRef} position="relative">
+        <Input
+          placeholder={t("searchItemPlaceholder")}
+          value={query}
+          onChange={(e) => handleInputChange(e.target.value)}
+          onFocus={handleFocus}
+          autoComplete="off"
+        />
+
+        {isOpen && (
+          <Box
+            position="absolute"
+            top="calc(100% + 4px)"
+            left={0}
+            right={0}
+            zIndex={50}
+            bg="white"
+            _dark={{ bg: "gray.800", borderColor: "gray.600" }}
+            borderWidth="1px"
+            borderColor="gray.200"
+            borderRadius="md"
+            boxShadow="md"
+            maxH="300px"
+            overflowY="auto"
+          >
+            {isLoading ? (
+              <HStack px={4} py={3} gap={2}>
+                <Spinner size="sm" />
+                <Text fontSize="sm" color="gray.500">{t("searching")}</Text>
+              </HStack>
+            ) : results.length === 0 ? (
+              <Box px={4} py={3}>
+                <Text fontSize="sm" color="gray.500">{t("noItems")}</Text>
+              </Box>
+            ) : (
+              results.map((item) => {
+                const isSelected = item.id === selectedItemId;
+                const outOfStock = item.availableQuantity === 0;
+                return (
+                  <HStack
+                    key={item.id}
+                    px={4}
+                    py={3}
+                    gap={3}
+                    cursor={outOfStock ? "not-allowed" : "pointer"}
+                    bg={isSelected ? "blue.50" : "transparent"}
+                    _dark={{
+                      bg: isSelected ? "blue.900" : "transparent",
+                      borderColor: "gray.700",
+                      _hover: { bg: outOfStock ? undefined : isSelected ? "blue.800" : "gray.700" },
+                    }}
+                    opacity={outOfStock ? 0.5 : 1}
+                    _hover={{ bg: outOfStock ? undefined : isSelected ? "blue.100" : "gray.50" }}
+                    borderBottomWidth="1px"
+                    borderColor="gray.100"
+                    _last={{ borderBottomWidth: 0 }}
+                    onClick={() => handleSelect(item)}
+                    justify="space-between"
+                  >
+                    <Box minW={0} flex={1}>
+                      <HStack gap={2}>
+                        <Text fontSize="sm" fontWeight={isSelected ? "semibold" : "normal"} truncate>
+                          {item.name}
+                        </Text>
+                        {item.unit && (
+                          <Badge colorPalette="gray" fontSize="xs" flexShrink={0}>
+                            {item.unit}
+                          </Badge>
+                        )}
+                      </HStack>
+                    </Box>
+                    <Text
+                      fontSize="xs"
+                      fontWeight="semibold"
+                      color={outOfStock ? "red.500" : "green.600"}
+                      flexShrink={0}
+                    >
+                      {outOfStock ? t("outOfStock") : `${ti("available")}: ${item.availableQuantity}`}
+                    </Text>
+                  </HStack>
+                );
+              })
+            )}
+          </Box>
+        )}
+      </Box>
     </Stack>
   );
 }

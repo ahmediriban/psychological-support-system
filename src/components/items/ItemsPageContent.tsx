@@ -18,10 +18,11 @@ import {
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useCreateItem, useItemsWithAvailable } from "../../hooks/items/useItems";
+import { useCreateItem, useItemsWithAvailablePaged } from "../../hooks/items/useItems";
 import { useSelectedCategory } from "../../hooks/useSelectedCategory";
 import type { Item } from "../../types/item";
 import { CategorySelector } from "../ui/CategorySelector";
+import { Pagination } from "../ui/Pagination";
 import { DeleteItemDialog } from "./DeleteItemDialog";
 import { EditItemDialog } from "./EditItemDialog";
 import { ItemForm } from "./ItemForm";
@@ -36,14 +37,21 @@ export function ItemsPageContent({ role }: Props) {
   const isAdmin = role === "ADMIN";
 
   const { category, setCategory } = useSelectedCategory();
-  const { data: items = [], isLoading, isError } = useItemsWithAvailable(category);
+  const [page, setPage] = useState(1);
+
+  function handleCategoryChange(cat: typeof category) {
+    setCategory(cat);
+    setPage(1);
+  }
+
+  const { data, isLoading, isError } = useItemsWithAvailablePaged(category, page);
   const createMutation = useCreateItem();
 
   const [showCreate, setShowCreate] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [deleteItem, setDeleteItem] = useState<Item | null>(null);
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <Box p={{ base: 4, md: 8 }} display="flex" justifyContent="center">
         <Spinner size="lg" />
@@ -58,6 +66,11 @@ export function ItemsPageContent({ role }: Props) {
       </Box>
     );
   }
+
+  const items = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
+  const total = data?.total ?? 0;
+  const pageSize = data?.pageSize ?? 12;
 
   return (
     <Box p={{ base: 4, md: 8 }}>
@@ -75,15 +88,27 @@ export function ItemsPageContent({ role }: Props) {
       </HStack>
 
       <Box mb={6}>
-        <CategorySelector value={category} onChange={setCategory} />
+        <CategorySelector value={category} onChange={handleCategoryChange} />
       </Box>
 
-      <ItemList
-        items={items}
-        isAdmin={isAdmin}
-        onEdit={setEditItem}
-        onDelete={setDeleteItem}
-      />
+      <Box opacity={isLoading ? 0.6 : 1} transition="opacity 0.15s">
+        <ItemList
+          items={items}
+          isAdmin={isAdmin}
+          onEdit={setEditItem}
+          onDelete={setDeleteItem}
+        />
+      </Box>
+
+      {totalPages > 1 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          pageSize={pageSize}
+          onChange={setPage}
+        />
+      )}
 
       {/* Create dialog */}
       <Dialog.Root open={showCreate} onOpenChange={(e) => !e.open && setShowCreate(false)}>
@@ -102,8 +127,8 @@ export function ItemsPageContent({ role }: Props) {
               )}
               <ItemForm
                 defaultValues={{ name: "", category }}
-                onSubmit={(data) =>
-                  createMutation.mutate(data, { onSuccess: () => setShowCreate(false) })
+                onSubmit={(formData) =>
+                  createMutation.mutate(formData, { onSuccess: () => setShowCreate(false) })
                 }
                 isLoading={createMutation.isPending}
               />

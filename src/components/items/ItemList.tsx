@@ -36,7 +36,6 @@ export function ItemList({ items, isAdmin, onEdit, onDelete }: Props) {
           isAdmin={isAdmin}
           onEdit={onEdit}
           onDelete={onDelete}
-          availableQuantity={item.availableQuantity}
         />
       ))}
     </SimpleGrid>

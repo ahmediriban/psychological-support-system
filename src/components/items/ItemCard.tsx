@@ -15,10 +15,9 @@ type Props = {
   isAdmin: boolean;
   onEdit: (item: Item) => void;
   onDelete: (item: Item) => void;
-  availableQuantity?: number;
 };
 
-export function ItemCard({ item, isAdmin, onEdit, onDelete, availableQuantity }: Props) {
+export function ItemCard({ item, isAdmin, onEdit, onDelete }: Props) {
   const t = useTranslations("items");
   const tc = useTranslations("categories");
   const color = CATEGORY_COLORS[item.category] ?? "gray";
@@ -69,7 +68,7 @@ export function ItemCard({ item, isAdmin, onEdit, onDelete, availableQuantity }:
 
         <Separator my={2} />
 
-        <HStack justify="space-between" fontSize="xs" color="gray.600">
+        <HStack fontSize="xs" color="gray.600">
           <Box>
             <Text color="gray.400">{t("totalQuantity")}</Text>
             <Text fontWeight="semibold" fontSize="sm">
@@ -77,19 +76,6 @@ export function ItemCard({ item, isAdmin, onEdit, onDelete, availableQuantity }:
               {item.unit ? ` ${item.unit}` : ""}
             </Text>
           </Box>
-          {availableQuantity !== undefined && (
-            <Box textAlign="end">
-              <Text color="gray.400">{t("available")}</Text>
-              <Text
-                fontWeight="semibold"
-                fontSize="sm"
-                color={availableQuantity === 0 ? "red.500" : "green.600"}
-              >
-                {availableQuantity}
-                {item.unit ? ` ${item.unit}` : ""}
-              </Text>
-            </Box>
-          )}
         </HStack>
       </CardBody>
     </CardRoot>

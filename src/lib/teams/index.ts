@@ -23,16 +23,11 @@ export async function updateTeam(id: string, name: string) {
 }
 
 export async function deleteTeam(id: string) {
-  // Delete all stocks associated with the team
-  await prisma.stock.deleteMany({ where: { teamId: id } });
-
-  // Delete all usages associated with the team
-  await prisma.usageLog.deleteMany({ where: { teamId: id } });
-
-  // Delete all transactions associated with the team
-  await prisma.stockTransaction.deleteMany({ where: { teamId: id } });
-
-  // Finally, delete the team itself
+  await Promise.all([
+    prisma.stock.deleteMany({ where: { teamId: id } }),
+    prisma.usageLog.deleteMany({ where: { teamId: id } }),
+    prisma.stockTransaction.deleteMany({ where: { teamId: id } }),
+  ]);
   return prisma.team.delete({ where: { id } });
 }
 
@@ -115,7 +110,18 @@ export async function getTeamStockSummary(teamId: string) {
     where: { teamId } as any,
     include: { item: true } as any,
     orderBy: { item: { name: "asc" } } as any,
-  })
+  });
+}
+
+export async function searchTeamStock(teamId: string, q: string, limit: number) {
+  const where: Record<string, unknown> = { teamId, quantity: { gt: 0 } };
+  if (q) where.item = { name: { contains: q, mode: "insensitive" } };
+  return prisma.stock.findMany({
+    where: where as any,
+    include: { item: true } as any,
+    orderBy: { item: { name: "asc" } } as any,
+    take: limit,
+  });
 }
 
 export async function getTeamUsageHistory(teamId: string) {
