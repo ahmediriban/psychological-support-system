@@ -71,6 +71,7 @@ enum ItemCategory {
   MATERIALS_STATIONERY
   FIRST_AID
   HYGIENE
+  PRINTING
 }
 
 //

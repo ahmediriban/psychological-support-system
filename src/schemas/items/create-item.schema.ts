@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const ITEM_CATEGORIES = ["MATERIALS_STATIONERY", "FIRST_AID", "HYGIENE"] as const;
+export const ITEM_CATEGORIES = ["MATERIALS_STATIONERY", "FIRST_AID", "HYGIENE", "PRINTING"] as const;
 export type ItemCategoryEnum = (typeof ITEM_CATEGORIES)[number];
 
 export const createItemSchema = z.object({

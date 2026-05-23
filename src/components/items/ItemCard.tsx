@@ -8,6 +8,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   MATERIALS_STATIONERY: "blue",
   FIRST_AID: "red",
   HYGIENE: "green",
+  PRINTING: "orange",
 };
 
 type Props = {
