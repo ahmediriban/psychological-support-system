@@ -12,7 +12,7 @@ export default async function WorkersPage({
   const user = await getCurrentUserWithRole(await headers());
 
   if (!user) redirect(`/${locale}/login`);
-  if (user.role === "USER") redirect(`/${locale}/items`);
+  if (user.role === "USER") redirect(`/${locale}/usage`);
 
   return <WorkersPageContent role={user.role as "ADMIN" | "SUPERVISOR"} />;
 }
