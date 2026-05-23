@@ -27,6 +27,32 @@ export async function getDistributions(): Promise<DistributionRecord[]> {
   }));
 }
 
+export async function getDistributionsPaged(page: number, pageSize: number) {
+  const where = { action: "DISTRIBUTION" };
+  const [logs, total] = await Promise.all([
+    prisma.auditLog.findMany({
+      where,
+      include: { user: { select: { id: true, name: true, email: true } } },
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.auditLog.count({ where }),
+  ]);
+  return {
+    data: logs.map((log) => ({
+      id: log.id,
+      createdAt: log.createdAt.toISOString(),
+      metadata: log.metadata as unknown as DistributionMeta,
+      user: log.user,
+    })),
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
+
 export async function getDistributionById(id: string): Promise<DistributionRecord | null> {
   const log = await prisma.auditLog.findFirst({
     where: { id, action: "DISTRIBUTION" },

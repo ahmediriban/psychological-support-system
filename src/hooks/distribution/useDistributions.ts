@@ -4,6 +4,14 @@ import type { DistributionRecord } from "../../types/distribution";
 
 const QUERY_KEY = ["distributions"] as const;
 
+export type PagedResponse<T> = {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
 async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   if (!res.ok) {
@@ -17,6 +25,14 @@ export function useDistributions() {
   return useQuery<DistributionRecord[]>({
     queryKey: QUERY_KEY,
     queryFn: () => apiFetch<DistributionRecord[]>("/api/distribution"),
+  });
+}
+
+export function useDistributionsPaged(page: number) {
+  return useQuery<PagedResponse<DistributionRecord>>({
+    queryKey: [...QUERY_KEY, "paged", page],
+    queryFn: () => apiFetch<PagedResponse<DistributionRecord>>(`/api/distribution?page=${page}`),
+    placeholderData: (prev) => prev,
   });
 }
 

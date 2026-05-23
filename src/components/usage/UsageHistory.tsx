@@ -12,7 +12,9 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useTranslations } from "next-intl";
-import { useTeamUsage, useUsageHistory } from "../../hooks/usage/useUsage";
+import { useState } from "react";
+import { useTeamUsagePaged, useUsageHistoryPaged } from "../../hooks/usage/useUsage";
+import { Pagination } from "../ui/Pagination";
 
 type Props =
   | { mode: "team"; teamId: string }
@@ -20,14 +22,14 @@ type Props =
 
 export function UsageHistory(props: Props) {
   const t = useTranslations("usage");
+  const [page, setPage] = useState(1);
 
-  const allQuery = useUsageHistory();
-  const teamQuery = useTeamUsage(props.mode === "team" ? props.teamId : "");
+  const allQuery = useUsageHistoryPaged(page);
+  const teamQuery = useTeamUsagePaged(props.mode === "team" ? props.teamId : "", page);
 
-  const { data = [], isLoading, isError } =
-    props.mode === "team" ? teamQuery : allQuery;
+  const { data, isLoading, isError } = props.mode === "team" ? teamQuery : allQuery;
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <Stack gap={3}>
         {[1, 2, 3].map((i) => <Skeleton key={i} h="56px" borderRadius="md" />)}
@@ -37,7 +39,12 @@ export function UsageHistory(props: Props) {
 
   if (isError) return <Text color="red.500">{t("errorHistory")}</Text>;
 
-  if (data.length === 0) {
+  const records = data?.data ?? [];
+  const totalPages = data?.totalPages ?? 1;
+  const total = data?.total ?? 0;
+  const pageSize = data?.pageSize ?? 12;
+
+  if (records.length === 0 && page === 1) {
     return (
       <EmptyStateRoot>
         <EmptyStateTitle>{t("noHistory")}</EmptyStateTitle>
@@ -46,46 +53,58 @@ export function UsageHistory(props: Props) {
   }
 
   return (
-    <Box overflowX="auto">
-      <Table.Root variant="outline" size="sm">
-        <Table.Header>
-          <Table.Row>
-            <Table.ColumnHeader>{t("date")}</Table.ColumnHeader>
-            {props.mode === "all" && <Table.ColumnHeader>{t("team")}</Table.ColumnHeader>}
-            <Table.ColumnHeader>{t("item")}</Table.ColumnHeader>
-            <Table.ColumnHeader textAlign="end">{t("quantity")}</Table.ColumnHeader>
-            <Table.ColumnHeader>{t("purpose")}</Table.ColumnHeader>
-            <Table.ColumnHeader>{t("by")}</Table.ColumnHeader>
-          </Table.Row>
-        </Table.Header>
-        <Table.Body>
-          {data.map((record) => (
-            <Table.Row key={record.id}>
-              <Table.Cell whiteSpace="nowrap" color="gray.500" fontSize="xs">
-                {new Date(record.createdAt).toLocaleDateString()}
-              </Table.Cell>
-              {props.mode === "all" && (
-                <Table.Cell fontSize="sm">{record.team.name}</Table.Cell>
-              )}
-              <Table.Cell>
-                <HStack gap={1}>
-                  <Text fontWeight="medium" fontSize="sm">{record.item.name}</Text>
-                  {record.item.unit && (
-                    <Badge colorPalette="gray" fontSize="xs">{record.item.unit}</Badge>
-                  )}
-                </HStack>
-              </Table.Cell>
-              <Table.Cell textAlign="end" fontWeight="bold">{record.quantity}</Table.Cell>
-              <Table.Cell fontSize="sm" color="gray.700" maxW="200px">
-                <Text truncate>{record.purpose}</Text>
-              </Table.Cell>
-              <Table.Cell fontSize="xs" color="gray.500" whiteSpace="nowrap">
-                {record.user?.name ?? record.user?.email ?? "—"}
-              </Table.Cell>
+    <Stack gap={4}>
+      <Box overflowX="auto" opacity={isLoading ? 0.6 : 1} transition="opacity 0.15s">
+        <Table.Root variant="outline" size="sm">
+          <Table.Header>
+            <Table.Row>
+              <Table.ColumnHeader>{t("date")}</Table.ColumnHeader>
+              {props.mode === "all" && <Table.ColumnHeader>{t("team")}</Table.ColumnHeader>}
+              <Table.ColumnHeader>{t("item")}</Table.ColumnHeader>
+              <Table.ColumnHeader textAlign="end">{t("quantity")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("purpose")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("by")}</Table.ColumnHeader>
             </Table.Row>
-          ))}
-        </Table.Body>
-      </Table.Root>
-    </Box>
+          </Table.Header>
+          <Table.Body>
+            {records.map((record) => (
+              <Table.Row key={record.id}>
+                <Table.Cell whiteSpace="nowrap" color="gray.500" fontSize="xs">
+                  {new Date(record.createdAt).toLocaleDateString()}
+                </Table.Cell>
+                {props.mode === "all" && (
+                  <Table.Cell fontSize="sm">{record.team.name}</Table.Cell>
+                )}
+                <Table.Cell>
+                  <HStack gap={1}>
+                    <Text fontWeight="medium" fontSize="sm">{record.item.name}</Text>
+                    {record.item.unit && (
+                      <Badge colorPalette="gray" fontSize="xs">{record.item.unit}</Badge>
+                    )}
+                  </HStack>
+                </Table.Cell>
+                <Table.Cell textAlign="end" fontWeight="bold">{record.quantity}</Table.Cell>
+                <Table.Cell fontSize="sm" color="gray.700" maxW="200px">
+                  <Text truncate>{record.purpose}</Text>
+                </Table.Cell>
+                <Table.Cell fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                  {record.user?.name ?? record.user?.email ?? "—"}
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table.Root>
+      </Box>
+
+      {totalPages > 1 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          pageSize={pageSize}
+          onChange={setPage}
+        />
+      )}
+    </Stack>
   );
 }

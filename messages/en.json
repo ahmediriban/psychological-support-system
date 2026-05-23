@@ -61,7 +61,18 @@
     "confirmDelete": "Are you sure you want to delete this item?",
     "deleteWarning": "This action cannot be undone.",
     "noItems": "No items yet",
-    "error": "Failed to load items"
+    "error": "Failed to load items",
+    "category": "Category",
+    "bulkImport": "Bulk Import",
+    "bulkDropHint": "Click to upload an Excel or CSV file",
+    "bulkColumns": "Required columns: item / unit / quantity / category",
+    "bulkParsing": "Reading file...",
+    "bulkNoRows": "File is empty or has no rows",
+    "bulkParseError": "Could not read file, check the format",
+    "bulkStatus": "Status",
+    "bulkValid": "{count} valid rows",
+    "bulkInvalid": "{count} rows with errors",
+    "bulkConfirm": "Import {count} items"
   },
   "teams": {
     "title": "Teams",

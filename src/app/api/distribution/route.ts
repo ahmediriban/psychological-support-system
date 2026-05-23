@@ -1,4 +1,4 @@
-import { createDistribution, getDistributions } from "../../../lib/distribution";
+import { createDistribution, getDistributions, getDistributionsPaged } from "../../../lib/distribution";
 import { getCurrentUserWithRole } from "../../../lib/auth";
 import { Role } from "../../../generated/prisma/enums";
 import { createDistributionSchema } from "../../../schemas/distribution/create-distribution.schema";
@@ -9,12 +9,21 @@ async function getAuthedUser() {
   return getCurrentUserWithRole(await headers());
 }
 
-export async function GET() {
+const PAGE_SIZE = 12;
+
+export async function GET(req: NextRequest) {
   const user = await getAuthedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   if (user.role === Role.USER) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  const rawPage = req.nextUrl.searchParams.get("page");
+  const page = rawPage ? Math.max(1, parseInt(rawPage, 10) || 1) : null;
+
   try {
+    if (page !== null) {
+      const result = await getDistributionsPaged(page, PAGE_SIZE);
+      return NextResponse.json(result);
+    }
     const distributions = await getDistributions();
     return NextResponse.json(distributions);
   } catch {

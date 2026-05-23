@@ -34,6 +34,27 @@ export async function deleteItem(id: string) {
   return prisma.item.delete({ where: { id } });
 }
 
+export async function bulkImportItems(
+  rows: { name: string; unit?: string; category: ItemCategoryEnum; quantity: number }[]
+) {
+  return Promise.all(
+    rows.map((row) =>
+      (prisma.item as any).upsert({
+        where: { name: row.name },
+        create: {
+          name: row.name,
+          unit: row.unit ?? null,
+          category: row.category,
+          totalQuantity: row.quantity,
+        },
+        update: {
+          totalQuantity: { increment: row.quantity },
+        },
+      })
+    )
+  );
+}
+
 // ─── List/search with available quantity ──────────────────────────────────────
 // totalQuantity IS the available quantity — it decrements on every distribution.
 

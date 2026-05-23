@@ -4,6 +4,8 @@ import type { UsageRecord } from "../../types/usage";
 
 const QUERY_KEY = ["usage"] as const;
 
+type PagedResponse<T> = { data: T[]; total: number; page: number; pageSize: number; totalPages: number };
+
 async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const res = await fetch(input, init);
   if (!res.ok) {
@@ -21,12 +23,29 @@ export function useUsageHistory() {
   });
 }
 
+export function useUsageHistoryPaged(page: number) {
+  return useQuery<PagedResponse<UsageRecord>>({
+    queryKey: [...QUERY_KEY, "paged", page],
+    queryFn: () => apiFetch<PagedResponse<UsageRecord>>(`/api/usage?page=${page}`),
+    placeholderData: (prev) => prev,
+  });
+}
+
 // Single team usage (filtered server-side; workers use this automatically)
 export function useTeamUsage(teamId: string) {
   return useQuery<UsageRecord[]>({
     queryKey: [...QUERY_KEY, "team", teamId],
     queryFn: () => apiFetch<UsageRecord[]>(`/api/usage?teamId=${teamId}`),
     enabled: !!teamId,
+  });
+}
+
+export function useTeamUsagePaged(teamId: string, page: number) {
+  return useQuery<PagedResponse<UsageRecord>>({
+    queryKey: [...QUERY_KEY, "team", teamId, "paged", page],
+    queryFn: () => apiFetch<PagedResponse<UsageRecord>>(`/api/usage?teamId=${teamId}&page=${page}`),
+    enabled: !!teamId,
+    placeholderData: (prev) => prev,
   });
 }
 

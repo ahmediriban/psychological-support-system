@@ -23,6 +23,7 @@ import { useSelectedCategory } from "../../hooks/useSelectedCategory";
 import type { Item } from "../../types/item";
 import { CategorySelector } from "../ui/CategorySelector";
 import { Pagination } from "../ui/Pagination";
+import { BulkImportModal } from "./BulkImportModal";
 import { DeleteItemDialog } from "./DeleteItemDialog";
 import { EditItemDialog } from "./EditItemDialog";
 import { ItemForm } from "./ItemForm";
@@ -48,6 +49,7 @@ export function ItemsPageContent({ role }: Props) {
   const createMutation = useCreateItem();
 
   const [showCreate, setShowCreate] = useState(false);
+  const [showBulk, setShowBulk] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
   const [deleteItem, setDeleteItem] = useState<Item | null>(null);
 
@@ -77,13 +79,23 @@ export function ItemsPageContent({ role }: Props) {
       <HStack justify="space-between" mb={4} gap={3} flexWrap="wrap">
         <Heading size={{ base: "md", md: "lg" }}>{t("title")}</Heading>
         {isAdmin && (
-          <Button
-            colorPalette="blue"
-            size={{ base: "sm", md: "md" }}
-            onClick={() => setShowCreate(true)}
-          >
-            {t("addItem")}
-          </Button>
+          <HStack gap={2}>
+            <Button
+              variant="outline"
+              colorPalette="blue"
+              size={{ base: "sm", md: "md" }}
+              onClick={() => setShowBulk(true)}
+            >
+              {t("bulkImport")}
+            </Button>
+            <Button
+              colorPalette="blue"
+              size={{ base: "sm", md: "md" }}
+              onClick={() => setShowCreate(true)}
+            >
+              {t("addItem")}
+            </Button>
+          </HStack>
         )}
       </HStack>
 
@@ -136,6 +148,8 @@ export function ItemsPageContent({ role }: Props) {
           </DialogContent>
         </DialogPositioner>
       </Dialog.Root>
+
+      <BulkImportModal open={showBulk} onClose={() => setShowBulk(false)} />
 
       <EditItemDialog
         item={editItem}

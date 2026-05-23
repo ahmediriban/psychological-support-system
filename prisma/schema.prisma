@@ -81,7 +81,7 @@ enum ItemCategory {
 
 model Item {
   id   String  @id @default(cuid())
-  name String
+  name String  @unique
   unit String? // box, piece, etc
 
   category      ItemCategory @default(MATERIALS_STATIONERY)

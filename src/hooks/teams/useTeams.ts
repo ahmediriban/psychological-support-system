@@ -116,6 +116,8 @@ export function useTeamStockSearch(teamId: string, query: string) {
   });
 }
 
+type PagedResponse<T> = { data: T[]; total: number; page: number; pageSize: number; totalPages: number };
+
 export function useTeamUsage(teamId: string) {
   return useQuery<UsageEntry[]>({
     queryKey: ["teams", teamId, "usage"],
@@ -124,10 +126,28 @@ export function useTeamUsage(teamId: string) {
   });
 }
 
+export function useTeamUsagePaged(teamId: string, page: number) {
+  return useQuery<PagedResponse<UsageEntry>>({
+    queryKey: ["teams", teamId, "usage", "paged", page],
+    queryFn: () => apiFetch<PagedResponse<UsageEntry>>(`/api/teams/${teamId}/usage?page=${page}`),
+    enabled: !!teamId,
+    placeholderData: (prev) => prev,
+  });
+}
+
 export function useTeamDistribution(teamId: string) {
   return useQuery<DistributionEntry[]>({
     queryKey: ["teams", teamId, "distribution"],
     queryFn: () => apiFetch<DistributionEntry[]>(`/api/teams/${teamId}/distribution`),
     enabled: !!teamId,
+  });
+}
+
+export function useTeamDistributionPaged(teamId: string, page: number) {
+  return useQuery<PagedResponse<DistributionEntry>>({
+    queryKey: ["teams", teamId, "distribution", "paged", page],
+    queryFn: () => apiFetch<PagedResponse<DistributionEntry>>(`/api/teams/${teamId}/distribution?page=${page}`),
+    enabled: !!teamId,
+    placeholderData: (prev) => prev,
   });
 }

@@ -61,7 +61,18 @@
     "confirmDelete": "هل أنت متأكد من حذف هذه المادة؟",
     "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه.",
     "noItems": "لا توجد مواد بعد",
-    "error": "حدث خطأ أثناء التحميل"
+    "error": "حدث خطأ أثناء التحميل",
+    "category": "الفئة",
+    "bulkImport": "استيراد جماعي",
+    "bulkDropHint": "انقر لرفع ملف Excel أو CSV",
+    "bulkColumns": "الأعمدة المطلوبة: item / unit / quantity / category",
+    "bulkParsing": "جاري قراءة الملف...",
+    "bulkNoRows": "الملف فارغ أو لا يحتوي على صفوف",
+    "bulkParseError": "تعذّر قراءة الملف، تأكد من صيغته",
+    "bulkStatus": "الحالة",
+    "bulkValid": "{count} صف صحيح",
+    "bulkInvalid": "{count} صف به أخطاء",
+    "bulkConfirm": "استيراد {count} عنصر"
   },
   "teams": {
     "title": "الفرق",

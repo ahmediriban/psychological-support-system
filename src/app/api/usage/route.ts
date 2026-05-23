@@ -1,4 +1,4 @@
-import { createUsage, getAllUsage, getUsageByTeam } from "../../../lib/usage";
+import { createUsage, getAllUsage, getAllUsagePaged, getUsageByTeam, getUsageByTeamPaged } from "../../../lib/usage";
 import { getCurrentUserWithRole } from "../../../lib/auth";
 import { Role } from "../../../generated/prisma/enums";
 import { createUsageSchema } from "../../../schemas/usage/create-usage.schema";
@@ -13,24 +13,26 @@ export async function GET(req: NextRequest) {
   const user = await getAuthedUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const teamId = req.nextUrl.searchParams.get("teamId");
+  const { searchParams } = req.nextUrl;
+  const teamId = searchParams.get("teamId");
+  const rawPage = searchParams.get("page");
+  const page = rawPage ? Math.max(1, parseInt(rawPage, 10) || 1) : null;
+  const PAGE_SIZE = 12;
 
   try {
     if (user.role === Role.USER) {
-      // Workers only see their own team's history
-      if (!user.teamId) return NextResponse.json([]);
-      const usage = await getUsageByTeam(user.teamId);
-      return NextResponse.json(usage);
+      if (!user.teamId) return NextResponse.json(page !== null ? { data: [], total: 0, page: 1, pageSize: PAGE_SIZE, totalPages: 0 } : []);
+      if (page !== null) return NextResponse.json(await getUsageByTeamPaged(user.teamId, page, PAGE_SIZE));
+      return NextResponse.json(await getUsageByTeam(user.teamId));
     }
 
-    // ADMIN / SUPERVISOR: optional teamId filter
     if (teamId) {
-      const usage = await getUsageByTeam(teamId);
-      return NextResponse.json(usage);
+      if (page !== null) return NextResponse.json(await getUsageByTeamPaged(teamId, page, PAGE_SIZE));
+      return NextResponse.json(await getUsageByTeam(teamId));
     }
 
-    const usage = await getAllUsage();
-    return NextResponse.json(usage);
+    if (page !== null) return NextResponse.json(await getAllUsagePaged(page, PAGE_SIZE));
+    return NextResponse.json(await getAllUsage());
   } catch {
     return NextResponse.json({ error: "Failed to fetch usage" }, { status: 500 });
   }

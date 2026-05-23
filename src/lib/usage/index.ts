@@ -50,6 +50,21 @@ export async function getUsageByTeam(teamId: string): Promise<UsageRecord[]> {
   return logs.map(toRecord);
 }
 
+export async function getUsageByTeamPaged(teamId: string, page: number, pageSize: number) {
+  const where = { teamId };
+  const [logs, total] = await Promise.all([
+    prisma.usageLog.findMany({
+      where: where as any,
+      include: USAGE_INCLUDE as any,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.usageLog.count({ where: where as any }),
+  ]);
+  return { data: logs.map(toRecord), total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+}
+
 export async function getAllUsage(): Promise<UsageRecord[]> {
   const logs = await prisma.usageLog.findMany({
     include: USAGE_INCLUDE as any,
@@ -57,6 +72,19 @@ export async function getAllUsage(): Promise<UsageRecord[]> {
     take: 200,
   });
   return logs.map(toRecord);
+}
+
+export async function getAllUsagePaged(page: number, pageSize: number) {
+  const [logs, total] = await Promise.all([
+    prisma.usageLog.findMany({
+      include: USAGE_INCLUDE as any,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.usageLog.count(),
+  ]);
+  return { data: logs.map(toRecord), total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
 
 export async function getUsageById(id: string): Promise<UsageRecord | null> {

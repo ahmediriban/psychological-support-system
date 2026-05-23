@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { CreateItemInput } from "../../schemas/items/create-item.schema";
+import type { BulkImportInput } from "../../schemas/items/bulk-import.schema";
 import type { UpdateItemInput } from "../../schemas/items/update-item.schema";
 import type { Item } from "../../types/item";
 
@@ -96,6 +97,19 @@ export function useItemSearch(query: string, category?: string) {
     queryKey: ["items", "search", debouncedQuery, category],
     queryFn: () => apiFetch<ItemWithAvailable[]>(`/api/items-search?${params.toString()}`),
     staleTime: 30_000,
+  });
+}
+
+export function useBulkImportItems() {
+  const queryClient = useQueryClient();
+  return useMutation<{ imported: number }, Error, BulkImportInput>({
+    mutationFn: (data) =>
+      apiFetch<{ imported: number }>("/api/items/bulk-import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 }
 

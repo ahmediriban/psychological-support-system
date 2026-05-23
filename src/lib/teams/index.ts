@@ -133,6 +133,21 @@ export async function getTeamUsageHistory(teamId: string) {
   })
 }
 
+export async function getTeamUsageHistoryPaged(teamId: string, page: number, pageSize: number) {
+  const where = { teamId };
+  const [data, total] = await Promise.all([
+    prisma.usageLog.findMany({
+      where: where as any,
+      include: { item: true, user: true } as any,
+      orderBy: { createdAt: "desc" } as any,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.usageLog.count({ where: where as any }),
+  ]);
+  return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+}
+
 export async function getTeamDistributionHistory(teamId: string) {
   return prisma.stockTransaction.findMany({
     where: { teamId, type: "GIVE" } as any,
@@ -140,4 +155,19 @@ export async function getTeamDistributionHistory(teamId: string) {
     orderBy: { createdAt: "desc" } as any,
     take: 100,
   })
+}
+
+export async function getTeamDistributionHistoryPaged(teamId: string, page: number, pageSize: number) {
+  const where = { teamId, type: "GIVE" };
+  const [data, total] = await Promise.all([
+    prisma.stockTransaction.findMany({
+      where: where as any,
+      include: { item: true } as any,
+      orderBy: { createdAt: "desc" } as any,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    prisma.stockTransaction.count({ where: where as any }),
+  ]);
+  return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
