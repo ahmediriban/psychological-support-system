@@ -35,6 +35,9 @@ export function ItemCard({ item, isAdmin, onEdit, onDelete }: Props) {
               <Badge colorPalette={color} fontSize="xs">
                 {tc(item.category)}
               </Badge>
+              <Badge colorPalette={item.usageType === "MULTI_USE" ? "purple" : "blue"} variant="subtle" fontSize="xs">
+                {t(item.usageType)}
+              </Badge>
               {item.unit && (
                 <Badge colorPalette="gray" fontSize="xs">
                   {item.unit}

@@ -52,6 +52,7 @@ export function EditItemDialog({ item, open, onClose }: Props) {
             )}
             <ItemForm
               defaultValues={item ?? undefined}
+              mode="edit"
               onSubmit={handleSubmit}
               isLoading={mutation.isPending}
             />

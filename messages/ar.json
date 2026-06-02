@@ -80,7 +80,12 @@
     "bulkStatus": "الحالة",
     "bulkValid": "{count} صف صحيح",
     "bulkInvalid": "{count} صف به أخطاء",
-    "bulkConfirm": "استيراد {count} عنصر"
+    "bulkConfirm": "استيراد {count} عنصر",
+    "usageType": "نوع الاستخدام",
+    "SINGLE_USE": "استخدام واحد",
+    "SINGLE_USE_hint": "يُستهلك في كل استخدام",
+    "MULTI_USE": "متعدد الاستخدام",
+    "MULTI_USE_hint": "قابل لإعادة الاستخدام"
   },
   "teams": {
     "title": "الفرق",
@@ -185,7 +190,11 @@
     "location": "مكان الاستخدام",
     "locationPlaceholder": "مثال: غرفة 3، المبنى الرئيسي...",
     "optional": "اختياري",
-    "errorLocationMin": "مكان الاستخدام يجب أن يكون حرفين على الأقل"
+    "errorLocationMin": "مكان الاستخدام يجب أن يكون حرفين على الأقل",
+    "multiUseDestroy": "استهلاك (خصم من المخزون)",
+    "multiUseLogOnly": "تسجيل فقط (بدون تغيير في المخزون)",
+    "cancel": "إلغاء",
+    "multiUseAction": "نوع التسجيل"
   },
   "distribution": {
     "title": "التوزيع",

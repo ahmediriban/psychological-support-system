@@ -80,7 +80,12 @@
     "bulkStatus": "Status",
     "bulkValid": "{count} valid rows",
     "bulkInvalid": "{count} rows with errors",
-    "bulkConfirm": "Import {count} items"
+    "bulkConfirm": "Import {count} items",
+    "usageType": "Usage Type",
+    "SINGLE_USE": "Single Use",
+    "SINGLE_USE_hint": "Consumed each use",
+    "MULTI_USE": "Multi Use",
+    "MULTI_USE_hint": "Reusable item"
   },
   "teams": {
     "title": "Teams",
@@ -185,7 +190,11 @@
     "location": "Location",
     "locationPlaceholder": "e.g. Room 3, Main building...",
     "optional": "optional",
-    "errorLocationMin": "Location must be at least 2 characters"
+    "errorLocationMin": "Location must be at least 2 characters",
+    "multiUseDestroy": "Consume (remove from stock)",
+    "multiUseLogOnly": "Log only (keep stock unchanged)",
+    "cancel": "Cancel",
+    "multiUseAction": "Usage action"
   },
   "distribution": {
     "title": "Distribution",

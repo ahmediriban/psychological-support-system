@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const record = await createUsage(parsed.data, user.id);
+    const record = await createUsage({ ...parsed.data, destroyStock: parsed.data.destroyStock }, user.id);
     return NextResponse.json(record, { status: 201 });
   } catch (err: unknown) {
     if (err instanceof Error && err.message === "NO_STOCK") {

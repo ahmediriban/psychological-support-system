@@ -31,11 +31,13 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const formSchema = z.object({
-  quantity: z.number({ error: "required" }).int().positive(),
+  quantity: z.number({ error: "required" }).int().positive().optional(),
   purpose: z.string().min(3),
   location: z.string().min(2).optional().or(z.literal("")),
 });
 type FormData = z.infer<typeof formSchema>;
+
+type MultiUseMode = "destroy" | "log_only" | null;
 
 type Props = {
   role: "ADMIN" | "USER";
@@ -52,6 +54,7 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
   const [activeTeamId, setActiveTeamId] = useState(lockedTeamId ?? "");
   const [selectedCategory, setSelectedCategory] = useState<ItemCategoryEnum | null>(null);
   const [selectedItem, setSelectedItem] = useState<StockItem | null>(null);
+  const [multiUseMode, setMultiUseMode] = useState<MultiUseMode>(null);
 
   const { data: teams = [] } = useTeams();
 
@@ -71,50 +74,59 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
 
   const quantity = watch("quantity");
 
-  // Reset category + item when team changes
   useEffect(() => {
     setSelectedCategory(null);
     setSelectedItem(null);
+    setMultiUseMode(null);
   }, [activeTeamId]);
 
-  // Reset item + full form when category changes
   useEffect(() => {
     setSelectedItem(null);
+    setMultiUseMode(null);
     reset({ quantity: 1, purpose: "", location: "" });
   }, [selectedCategory, reset]);
 
-  // Auto-select category when team has only one.
-  // Also depends on teamCategories.length so it re-fires once the async data arrives
-  // (for USER role, activeTeamId is set before teams data loads).
   useEffect(() => {
     if (teamCategories.length === 1) {
       setSelectedCategory(teamCategories[0]);
     }
   }, [activeTeamId, teamCategories.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  function clearAfterSuccess() {
+    reset({ quantity: 1, purpose: "", location: "" });
+    setSelectedItem(null);
+    setMultiUseMode(null);
+    setSelectedCategory(teamCategories.length === 1 ? teamCategories[0] : null);
+    onSuccess?.();
+  }
+
+  const isMultiUse = selectedItem?.usageType === "MULTI_USE";
+  const showQuantity = !isMultiUse || multiUseMode === "destroy";
+  // Show purpose/location only when: single-use item selected, or multi-use with mode chosen
+  const showFields = !!selectedItem && (!isMultiUse || multiUseMode !== null);
+  const canSubmit = !!selectedItem && !!activeTeamId && (!isMultiUse || multiUseMode !== null);
+
+  const overStock =
+    showQuantity &&
+    selectedItem &&
+    typeof quantity === "number" &&
+    quantity > selectedItem.available;
+
   function onSubmit(data: FormData) {
     if (!selectedItem || !activeTeamId) return;
+    const destroyStock = !isMultiUse || multiUseMode === "destroy";
     mutation.mutate(
       {
         itemId: selectedItem.itemId,
         teamId: activeTeamId,
-        quantity: data.quantity,
+        quantity: data.quantity ?? 1,
         purpose: data.purpose,
         location: data.location || undefined,
+        destroyStock,
       },
-      {
-        onSuccess: () => {
-          reset({ quantity: 1, purpose: "", location: "" });
-          setSelectedItem(null);
-          setSelectedCategory(teamCategories.length === 1 ? teamCategories[0] : null);
-          onSuccess?.();
-        },
-      }
+      { onSuccess: clearAfterSuccess }
     );
   }
-
-  const overStock =
-    selectedItem && typeof quantity === "number" && quantity > selectedItem.available;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -193,10 +205,12 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
                 selectedItemId={selectedItem?.itemId ?? null}
                 onSelect={(item) => {
                   setSelectedItem(item);
+                  setMultiUseMode(null);
                   reset((v) => ({ ...v, quantity: 1 }));
                 }}
                 onClear={() => {
                   setSelectedItem(null);
+                  setMultiUseMode(null);
                   reset((v) => ({ ...v, quantity: 1 }));
                 }}
               />
@@ -204,31 +218,68 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
           </>
         )}
 
-        {/* Quantity + purpose — only when item selected */}
-        {selectedItem && (
+        {/* Multi-use action toggle — shown right after item selection */}
+        {selectedItem && isMultiUse && (
+          <>
+            <Separator />
+            <Box>
+              <Text fontSize="xs" color="gray.500" mb={2} textTransform="uppercase">
+                {t("multiUseAction")}
+              </Text>
+              <HStack gap={2}>
+                <Button
+                  flex={1}
+                  size="sm"
+                  variant={multiUseMode === "destroy" ? "solid" : "outline"}
+                  colorPalette={multiUseMode === "destroy" ? "red" : "gray"}
+                  onClick={() => {
+                    setMultiUseMode("destroy");
+                    reset((v) => ({ ...v, quantity: 1 }));
+                  }}
+                >
+                  {t("multiUseDestroy")}
+                </Button>
+                <Button
+                  flex={1}
+                  size="sm"
+                  variant={multiUseMode === "log_only" ? "solid" : "outline"}
+                  colorPalette={multiUseMode === "log_only" ? "blue" : "gray"}
+                  onClick={() => setMultiUseMode("log_only")}
+                >
+                  {t("multiUseLogOnly")}
+                </Button>
+              </HStack>
+            </Box>
+          </>
+        )}
+
+        {/* Quantity (destroy only) + purpose + location */}
+        {showFields && (
           <>
             <Separator />
 
-            <Field.Root invalid={!!errors.quantity || !!overStock}>
-              <Field.Label>
-                {t("quantity")}
-                <Badge colorPalette="gray" ms={2} fontSize="xs">
-                  {t("available")}: {selectedItem.available}
-                </Badge>
-              </Field.Label>
-              <Input
-                type="number"
-                min={1}
-                max={selectedItem.available}
-                {...register("quantity", { valueAsNumber: true })}
-              />
-              {overStock && (
-                <Field.ErrorText>{t("errorOverStock", { max: selectedItem.available })}</Field.ErrorText>
-              )}
-              {errors.quantity && !overStock && (
-                <Field.ErrorText>{t("errorQuantityInvalid")}</Field.ErrorText>
-              )}
-            </Field.Root>
+            {showQuantity && (
+              <Field.Root invalid={!!errors.quantity || !!overStock}>
+                <Field.Label>
+                  {t("quantity")}
+                  <Badge colorPalette="gray" ms={2} fontSize="xs">
+                    {t("available")}: {selectedItem!.available}
+                  </Badge>
+                </Field.Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={selectedItem!.available}
+                  {...register("quantity", { valueAsNumber: true })}
+                />
+                {overStock && (
+                  <Field.ErrorText>{t("errorOverStock", { max: selectedItem!.available })}</Field.ErrorText>
+                )}
+                {errors.quantity && !overStock && (
+                  <Field.ErrorText>{t("errorQuantityInvalid")}</Field.ErrorText>
+                )}
+              </Field.Root>
+            )}
 
             <Field.Root invalid={!!errors.purpose}>
               <Field.Label>{t("purpose")}</Field.Label>
@@ -271,7 +322,7 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
           w="full"
           size="lg"
           loading={mutation.isPending}
-          disabled={!selectedItem || !activeTeamId}
+          disabled={!canSubmit}
         >
           {t("submit")}
         </Button>

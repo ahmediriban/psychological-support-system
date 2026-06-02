@@ -18,6 +18,7 @@ export type StockItem = {
   itemName: string;
   itemUnit: string | null;
   available: number;
+  usageType: "SINGLE_USE" | "MULTI_USE";
 };
 
 type Props = {
@@ -61,6 +62,7 @@ export function UsageItemSelector({ teamId, category, selectedItemId, onSelect, 
       itemName: s.item.name,
       itemUnit: s.item.unit,
       available: s.quantity,
+      usageType: (s.item as any).usageType ?? "SINGLE_USE",
     });
     setQuery("");
     setIsOpen(false);
