@@ -20,9 +20,6 @@ export function ItemList({ items, isAdmin, onEdit, onDelete }: Props) {
     return (
       <EmptyStateRoot>
         <EmptyStateTitle>{t("noItems")}</EmptyStateTitle>
-        {isAdmin && (
-          <EmptyStateDescription>{t("addItem")}</EmptyStateDescription>
-        )}
       </EmptyStateRoot>
     );
   }

@@ -9,7 +9,7 @@ const DEFAULT_CATEGORY: ItemCategoryEnum = "MATERIALS_STATIONERY";
 function readFromStorage(): ItemCategoryEnum {
   if (typeof window === "undefined") return DEFAULT_CATEGORY;
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "MATERIALS_STATIONERY" || stored === "FIRST_AID" || stored === "HYGIENE" || stored === "PRINTING") {
+  if (stored === "MATERIALS_STATIONERY" || stored === "FIRST_AID" || stored === "HYGIENE" || stored === "PRINTING" || stored === "HOSPITALITY") {
     return stored;
   }
   return DEFAULT_CATEGORY;

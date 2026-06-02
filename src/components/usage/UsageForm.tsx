@@ -28,6 +28,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   FIRST_AID: "red",
   HYGIENE: "green",
   PRINTING: "orange",
+  HOSPITALITY: "purple",
 };
 
 const formSchema = z.object({

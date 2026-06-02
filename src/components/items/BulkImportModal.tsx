@@ -30,6 +30,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   MATERIALS_STATIONERY: "blue",
   FIRST_AID: "red",
   HYGIENE: "green",
+  PRINTING: "orange",
+  HOSPITALITY: "purple",
 };
 
 type ParsedRow = BulkImportRow & { _error?: string };
@@ -45,6 +47,7 @@ function normalizeCategory(raw: unknown): ItemCategoryEnum | null {
     FIRSTAID: "FIRST_AID",
     HYGIENE: "HYGIENE",
     PRINTING: "PRINTING",
+    HOSPITALITY: "HOSPITALITY",
   };
   return map[upper] ?? (ITEM_CATEGORIES.includes(upper as ItemCategoryEnum) ? (upper as ItemCategoryEnum) : null);
 }
