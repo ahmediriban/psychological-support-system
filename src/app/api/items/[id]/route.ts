@@ -45,7 +45,8 @@ export async function DELETE(
   try {
     await deleteItem(id);
     return new NextResponse(null, { status: 204 });
-  } catch {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
   }
 }

@@ -66,7 +66,7 @@ export function CreateTeamDialog({ open, onClose }: Props) {
     const current = categoriesField.value as string[];
     if (current.includes(cat)) {
       categoriesField.onChange(current.filter((c) => c !== cat));
-    } else if (current.length < 4) {
+    } else if (current.length < 5) {
       categoriesField.onChange([...current, cat]);
     }
   }
@@ -120,13 +120,13 @@ export function CreateTeamDialog({ open, onClose }: Props) {
                   <Field.Label>
                     {tc("category")}
                     <Text as="span" fontSize="xs" color="gray.500" ms={2}>
-                      ({tc("selectUpTo4")})
+                      ({tc("selectUpTo5")})
                     </Text>
                   </Field.Label>
                   <Stack gap={2} w="full">
                     {ITEM_CATEGORIES.map((cat) => {
                       const isChecked = selected.includes(cat);
-                      const isDisabled = !isChecked && selected.length >= 4;
+                      const isDisabled = !isChecked && selected.length >= 5;
                       return (
                         <HStack
                           key={cat}
