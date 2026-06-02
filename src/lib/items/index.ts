@@ -31,7 +31,12 @@ export async function updateItem(
 }
 
 export async function deleteItem(id: string) {
-  return prisma.item.delete({ where: { id } });
+  return prisma.$transaction([
+    prisma.usageLog.deleteMany({ where: { itemId: id } }),
+    prisma.stockTransaction.deleteMany({ where: { itemId: id } }),
+    prisma.stock.deleteMany({ where: { itemId: id } }),
+    prisma.item.delete({ where: { id } }),
+  ]);
 }
 
 export async function bulkImportItems(
