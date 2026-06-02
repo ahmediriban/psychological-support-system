@@ -100,11 +100,9 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
     onSuccess?.();
   }
 
-  const isMultiUse = selectedItem?.usageType === "MULTI_USE";
-  const showQuantity = !isMultiUse || multiUseMode === "destroy";
-  // Show purpose/location only when: single-use item selected, or multi-use with mode chosen
-  const showFields = !!selectedItem && (!isMultiUse || multiUseMode !== null);
-  const canSubmit = !!selectedItem && !!activeTeamId && (!isMultiUse || multiUseMode !== null);
+  const showQuantity = multiUseMode === "destroy";
+  const showFields = !!selectedItem && multiUseMode !== null;
+  const canSubmit = !!selectedItem && !!activeTeamId && multiUseMode !== null;
 
   const overStock =
     showQuantity &&
@@ -114,7 +112,7 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
 
   function onSubmit(data: FormData) {
     if (!selectedItem || !activeTeamId) return;
-    const destroyStock = !isMultiUse || multiUseMode === "destroy";
+    const destroyStock = multiUseMode === "destroy";
     mutation.mutate(
       {
         itemId: selectedItem.itemId,
@@ -218,8 +216,8 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
           </>
         )}
 
-        {/* Multi-use action toggle — shown right after item selection */}
-        {selectedItem && isMultiUse && (
+        {/* Usage action toggle — shown for all items after selection */}
+        {!!selectedItem && (
           <>
             <Separator />
             <Box>

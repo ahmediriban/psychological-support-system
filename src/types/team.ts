@@ -1,4 +1,4 @@
-import type { ItemCategoryEnum, UsageTypeEnum } from "../schemas/items/create-item.schema";
+import type { ItemCategoryEnum } from "../schemas/items/create-item.schema";
 
 export type TeamWorker = {
   id: string;
@@ -33,7 +33,7 @@ export type TeamDetail = {
 export type StockEntry = {
   id: string;
   quantity: number;
-  item: { id: string; name: string; unit: string | null; category: ItemCategoryEnum; usageType: UsageTypeEnum };
+  item: { id: string; name: string; unit: string | null; category: ItemCategoryEnum };
 };
 
 /** Returned by GET /api/teams/[id]/usage */

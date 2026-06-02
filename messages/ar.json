@@ -80,12 +80,7 @@
     "bulkStatus": "الحالة",
     "bulkValid": "{count} صف صحيح",
     "bulkInvalid": "{count} صف به أخطاء",
-    "bulkConfirm": "استيراد {count} عنصر",
-    "usageType": "نوع الاستخدام",
-    "SINGLE_USE": "استخدام واحد",
-    "SINGLE_USE_hint": "يُستهلك في كل استخدام",
-    "MULTI_USE": "متعدد الاستخدام",
-    "MULTI_USE_hint": "قابل لإعادة الاستخدام"
+    "bulkConfirm": "استيراد {count} عنصر"
   },
   "teams": {
     "title": "الفرق",

@@ -80,18 +80,12 @@ enum ItemCategory {
 // ======================
 //
 
-enum UsageType {
-  SINGLE_USE
-  MULTI_USE
-}
-
 model Item {
   id   String  @id @default(cuid())
   name String  @unique
   unit String? // box, piece, etc
 
   category      ItemCategory @default(MATERIALS_STATIONERY)
-  usageType     UsageType    @default(SINGLE_USE)
   totalQuantity Int          @default(0)
 
   stocks Stock[]
