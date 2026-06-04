@@ -2,6 +2,7 @@
 
 import {
   Box,
+  HStack,
   TabsContent,
   TabsList,
   TabsRoot,
@@ -10,6 +11,7 @@ import {
 import { useTranslations } from "next-intl";
 import { TeamDetailHeader } from "./TeamDetailHeader";
 import { TeamDistributionHistory } from "./TeamDistributionHistory";
+import { TeamExportDialog } from "./TeamExportDialog";
 import { TeamStockSummary } from "./TeamStockSummary";
 import { TeamUsageHistory } from "./TeamUsageHistory";
 
@@ -26,11 +28,14 @@ export function TeamDetailContent({ teamId, role }: Props) {
       <TeamDetailHeader teamId={teamId} role={role} />
 
       <TabsRoot defaultValue="stock" lazyMount>
-        <TabsList mb={4} flexWrap="wrap">
-          <TabsTrigger value="stock">{t("stockSummary")}</TabsTrigger>
-          <TabsTrigger value="usage">{t("usageHistory")}</TabsTrigger>
-          <TabsTrigger value="distribution">{t("distributionHistory")}</TabsTrigger>
-        </TabsList>
+        <HStack mb={4} justify="space-between" align="flex-end" flexWrap="wrap" gap={2}>
+          <TabsList flexWrap="wrap">
+            <TabsTrigger value="stock">{t("stockSummary")}</TabsTrigger>
+            <TabsTrigger value="usage">{t("usageHistory")}</TabsTrigger>
+            <TabsTrigger value="distribution">{t("distributionHistory")}</TabsTrigger>
+          </TabsList>
+          <TeamExportDialog teamId={teamId} />
+        </HStack>
 
         <TabsContent value="stock">
           <TeamStockSummary teamId={teamId} />

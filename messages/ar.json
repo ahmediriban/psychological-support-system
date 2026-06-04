@@ -127,7 +127,15 @@
     "confirmDelete": "هل أنت متأكد من حذف هذا الفريق؟",
     "deleteWarning": "هذا الإجراء لا يمكن التراجع عنه.",
     "location": "مكان الاستخدام",
-    "allCategories": "جميع الفئات"
+    "allCategories": "جميع الفئات",
+    "export": "تصدير",
+    "exportData": "تصدير البيانات",
+    "exportPeriod": "اختر الفترة الزمنية",
+    "exportDateFrom": "من",
+    "exportDateTo": "إلى",
+    "exportConfirm": "تصدير",
+    "usageSheetName": "الاستخدام",
+    "distributionSheetName": "التوزيع"
   },
   "workers": {
     "title": "منسقي الفرق",

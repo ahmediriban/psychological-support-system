@@ -127,7 +127,15 @@
     "confirmDelete": "Are you sure you want to delete this team?",
     "deleteWarning": "This action cannot be undone.",
     "location": "Location",
-    "allCategories": "All Categories"
+    "allCategories": "All Categories",
+    "export": "Export",
+    "exportData": "Export Data",
+    "exportPeriod": "Select time period",
+    "exportDateFrom": "From",
+    "exportDateTo": "To",
+    "exportConfirm": "Export",
+    "usageSheetName": "Usage",
+    "distributionSheetName": "Distribution"
   },
   "workers": {
     "title": "Workers",

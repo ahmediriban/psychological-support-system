@@ -177,3 +177,21 @@ export async function getTeamDistributionHistoryPaged(teamId: string, page: numb
   ]);
   return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
+
+// ─── Export (date-range, no pagination cap) ───────────────────────────────────
+
+export async function getTeamUsageByDateRange(teamId: string, from: Date, to: Date) {
+  return prisma.usageLog.findMany({
+    where: { teamId, createdAt: { gte: from, lte: to } } as any,
+    include: { item: true, user: true } as any,
+    orderBy: { createdAt: "desc" } as any,
+  });
+}
+
+export async function getTeamDistributionByDateRange(teamId: string, from: Date, to: Date) {
+  return prisma.stockTransaction.findMany({
+    where: { teamId, type: "GIVE", createdAt: { gte: from, lte: to } } as any,
+    include: { item: true } as any,
+    orderBy: { createdAt: "desc" } as any,
+  });
+}
