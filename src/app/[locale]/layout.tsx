@@ -9,10 +9,10 @@ import { fonts } from "../../components/ui/fonts";
 import QueryClientProvider from "../../components/ui/queryClient";
 import { Metadata } from "next";
 
-export async function generateMetadata({params}: {params: Promise<{locale: string}>}) {
-  const {locale} = await params;
-  const t = await getTranslations({locale, namespace: 'metadata'});
- 
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+
   return {
     title: t('title'),
     description: t('description')
@@ -34,14 +34,20 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const dir = locale === "ar" ? "rtl" : "ltr";
-  
+
   return (
     <html lang={locale} dir={dir}>
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+      </head>
       <body className={dir === "rtl" ? fonts.tajawal.className : fonts.inter.className}>
-      <QueryClientProvider>
-        <NextIntlClientProvider messages={messages}>
-          <Provider locale={locale}>{children}</Provider>
-        </NextIntlClientProvider>
+        <QueryClientProvider>
+          <NextIntlClientProvider messages={messages}>
+            <Provider locale={locale}>{children}</Provider>
+          </NextIntlClientProvider>
         </QueryClientProvider>
       </body>
     </html>
