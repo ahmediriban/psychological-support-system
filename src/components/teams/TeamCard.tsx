@@ -41,7 +41,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function TeamCard({ team, isAdmin, onAssignWorker }: Props) {
   const t = useTranslations("teams");
   const tc = useTranslations("categories");
-  const responsibleWorker = team.users[0] ?? null;
+  const responsibleWorker = team.users.find((u) => u.isTeamLeader) ?? team.users[0] ?? null;
+  const memberCount = team.users.length;
   const [showDelete, setShowDelete] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
 
@@ -73,11 +74,18 @@ export function TeamCard({ team, isAdmin, onAssignWorker }: Props) {
                   ))}
                 </HStack>
                 {responsibleWorker ? (
-                  <HStack gap={1}>
-                    <Box w={1.5} h={1.5} borderRadius="full" bg="green.400" flexShrink={0} />
-                    <Text fontSize="xs" color="gray.500" truncate>
-                      {responsibleWorker.name ?? responsibleWorker.email}
-                    </Text>
+                  <HStack gap={2} flexWrap="wrap">
+                    <HStack gap={1}>
+                      <Box w={1.5} h={1.5} borderRadius="full" bg="green.400" flexShrink={0} />
+                      <Text fontSize="xs" color="gray.500" truncate>
+                        {responsibleWorker.name ?? responsibleWorker.email}
+                      </Text>
+                    </HStack>
+                    {memberCount > 1 && (
+                      <Badge colorPalette="gray" fontSize="2xs" variant="subtle">
+                        +{memberCount - 1}
+                      </Badge>
+                    )}
                   </HStack>
                 ) : (
                   <HStack gap={1}>

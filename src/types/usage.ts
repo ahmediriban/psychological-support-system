@@ -8,5 +8,6 @@ export type UsageRecord = {
   purpose: string;
   location: string | null;
   user: { id: string; name: string | null; email: string } | null;
+  teamLeader: { id: string; name: string | null; email: string } | null;
   createdAt: string;
 };

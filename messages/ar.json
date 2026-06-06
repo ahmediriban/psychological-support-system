@@ -135,7 +135,18 @@
     "exportDateTo": "إلى",
     "exportConfirm": "تصدير",
     "usageSheetName": "الاستخدام",
-    "distributionSheetName": "التوزيع"
+    "distributionSheetName": "التوزيع",
+    "teamLeader": "قائد الفريق",
+    "leader": "قائد",
+    "member": "عضو",
+    "teamMembers": "أعضاء الفريق",
+    "selectMembers": "اختر أعضاء الفريق",
+    "markAsLeader": "تعيين كقائد",
+    "noMembersSelected": "اختر عضواً واحداً على الأقل",
+    "noLeaderSelected": "يجب تعيين قائد للفريق",
+    "membersCount": "{count} أعضاء",
+    "currentMembers": "الأعضاء الحاليون",
+    "availableMembers": "المتاحون للإضافة"
   },
   "workers": {
     "title": "منسقي الفرق",
@@ -199,7 +210,11 @@
     "multiUseDestroy": "استهلاك (خصم من المخزون)",
     "multiUseLogOnly": "تسجيل فقط (بدون تغيير في المخزون)",
     "cancel": "إلغاء",
-    "multiUseAction": "نوع التسجيل"
+    "multiUseAction": "نوع التسجيل",
+    "createdBy": "أنشأ بواسطة",
+    "usageType": "نوع الاستخدام",
+    "logOnly": "تسجيل فقط",
+    "consume": "استهلاك"
   },
   "distribution": {
     "title": "التوزيع",

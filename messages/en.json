@@ -135,7 +135,18 @@
     "exportDateTo": "To",
     "exportConfirm": "Export",
     "usageSheetName": "Usage",
-    "distributionSheetName": "Distribution"
+    "distributionSheetName": "Distribution",
+    "teamLeader": "Team Leader",
+    "leader": "Leader",
+    "member": "Member",
+    "teamMembers": "Team Members",
+    "selectMembers": "Select team members",
+    "markAsLeader": "Mark as leader",
+    "noMembersSelected": "Select at least one member",
+    "noLeaderSelected": "A team leader must be assigned",
+    "membersCount": "{count} members",
+    "currentMembers": "Current Members",
+    "availableMembers": "Available to Add"
   },
   "workers": {
     "title": "Workers",
@@ -199,7 +210,11 @@
     "multiUseDestroy": "Consume (remove from stock)",
     "multiUseLogOnly": "Log only (keep stock unchanged)",
     "cancel": "Cancel",
-    "multiUseAction": "Usage action"
+    "multiUseAction": "Usage action",
+    "createdBy": "Created by",
+    "usageType": "Usage type",
+    "logOnly": "Log only",
+    "consume": "Consume"
   },
   "distribution": {
     "title": "Distribution",

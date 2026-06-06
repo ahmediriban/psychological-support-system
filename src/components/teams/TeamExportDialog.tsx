@@ -73,24 +73,42 @@ export function TeamExportDialog({ teamId }: Props) {
 
       const wb = XLSX.utils.book_new();
 
+      const tu = (key: string) => {
+        const map: Record<string, string> = {
+          usageType: locale === "ar" ? "نوع الاستخدام" : "Usage type",
+          logOnly: locale === "ar" ? "تسجيل فقط" : "Log only",
+          consume: locale === "ar" ? "استهلاك" : "Consume",
+          createdBy: locale === "ar" ? "أنشأ بواسطة" : "Created by",
+        };
+        return map[key] ?? key;
+      };
+
       const usageHeaders = [
         t("item"),
         t("quantity"),
         t("unit"),
+        tu("usageType"),
         t("worker"),
+        tu("createdBy"),
         t("purpose"),
         t("location"),
         t("date"),
       ];
-      const usageRows = usage.map((e) => [
-        e.item.name,
-        e.quantity,
-        e.item.unit ?? "",
-        e.user?.name ?? e.user?.email ?? "",
-        e.purpose,
-        e.location ?? "",
-        new Date(e.createdAt).toLocaleDateString(locale),
-      ]);
+      const usageRows = usage.map((e) => {
+        const isLogOnly = e.quantity === 0;
+        const leader = (e as any).teamLeader;
+        return [
+          e.item.name,
+          e.quantity,
+          e.item.unit ?? "",
+          isLogOnly ? tu("logOnly") : tu("consume"),
+          leader?.name ?? leader?.email ?? "",
+          e.user?.name ?? e.user?.email ?? "",
+          e.purpose,
+          e.location ?? "",
+          new Date(e.createdAt).toLocaleDateString(locale),
+        ];
+      });
       const usageWs = XLSX.utils.aoa_to_sheet([usageHeaders, ...usageRows]);
       XLSX.utils.book_append_sheet(wb, usageWs, t("usageSheetName"));
 

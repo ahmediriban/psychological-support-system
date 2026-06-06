@@ -38,8 +38,7 @@ export async function getTeams() {
     include: {
       users: {
         where: { role: "USER" } as any,
-        take: 1,
-        select: { id: true, name: true, email: true, teamId: true },
+        select: { id: true, name: true, email: true, teamId: true, isTeamLeader: true },
       },
       _count: {
         select: { stocks: true, usages: true },
@@ -87,15 +86,21 @@ export async function assignUserToTeam(userId: string, teamId: string) {
   })
 }
 
-export async function assignWorkerToTeam(teamId: string, userId: string) {
-  // Unassign anyone currently on this team first (enforces one worker per team)
+export async function assignWorkerToTeam(teamId: string, userIds: string[], leaderId: string) {
+  // Clear all current members from this team
   await (prisma.user as any).updateMany({
-    where: { teamId, NOT: { id: userId } },
-    data: { teamId: null },
+    where: { teamId },
+    data: { teamId: null, isTeamLeader: false },
   });
+  // Assign all new members (non-leaders first)
+  await (prisma.user as any).updateMany({
+    where: { id: { in: userIds } },
+    data: { teamId, isTeamLeader: false },
+  });
+  // Mark the leader
   return prisma.user.update({
-    where: { id: userId },
-    data: { teamId } as any,
+    where: { id: leaderId },
+    data: { isTeamLeader: true } as any,
   });
 }
 
@@ -130,28 +135,50 @@ export async function searchTeamStock(teamId: string, q: string, limit: number, 
   });
 }
 
+const TEAM_USAGE_INCLUDE = {
+  item: true,
+  user: { select: { id: true, name: true, email: true } },
+  team: {
+    select: {
+      users: {
+        where: { isTeamLeader: true },
+        select: { id: true, name: true, email: true },
+        take: 1,
+      },
+    },
+  },
+};
+
+function toUsageEntry(log: any) {
+  return {
+    ...log,
+    teamLeader: log.team?.users?.[0] ?? null,
+  };
+}
+
 export async function getTeamUsageHistory(teamId: string) {
-  return prisma.usageLog.findMany({
+  const logs = await prisma.usageLog.findMany({
     where: { teamId } as any,
-    include: { item: true, user: true } as any,
+    include: TEAM_USAGE_INCLUDE as any,
     orderBy: { createdAt: "desc" } as any,
     take: 100,
-  })
+  });
+  return logs.map(toUsageEntry);
 }
 
 export async function getTeamUsageHistoryPaged(teamId: string, page: number, pageSize: number) {
   const where = { teamId };
-  const [data, total] = await Promise.all([
+  const [logs, total] = await Promise.all([
     prisma.usageLog.findMany({
       where: where as any,
-      include: { item: true, user: true } as any,
+      include: TEAM_USAGE_INCLUDE as any,
       orderBy: { createdAt: "desc" } as any,
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
     prisma.usageLog.count({ where: where as any }),
   ]);
-  return { data, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
+  return { data: logs.map(toUsageEntry), total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
 
 export async function getTeamDistributionHistory(teamId: string) {
@@ -181,11 +208,12 @@ export async function getTeamDistributionHistoryPaged(teamId: string, page: numb
 // ─── Export (date-range, no pagination cap) ───────────────────────────────────
 
 export async function getTeamUsageByDateRange(teamId: string, from: Date, to: Date) {
-  return prisma.usageLog.findMany({
+  const logs = await prisma.usageLog.findMany({
     where: { teamId, createdAt: { gte: from, lte: to } } as any,
-    include: { item: true, user: true } as any,
+    include: TEAM_USAGE_INCLUDE as any,
     orderBy: { createdAt: "desc" } as any,
   });
+  return logs.map(toUsageEntry);
 }
 
 export async function getTeamDistributionByDateRange(teamId: string, from: Date, to: Date) {

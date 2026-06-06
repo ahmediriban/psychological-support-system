@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const updated = await assignWorkerToTeam(parsed.data.teamId, parsed.data.userId);
+    const updated = await assignWorkerToTeam(parsed.data.teamId, parsed.data.userIds, parsed.data.leaderId);
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json({ error: "Failed to assign worker" }, { status: 500 });

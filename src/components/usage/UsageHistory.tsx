@@ -62,40 +62,53 @@ export function UsageHistory(props: Props) {
               {props.mode === "all" && <Table.ColumnHeader>{t("team")}</Table.ColumnHeader>}
               <Table.ColumnHeader>{t("item")}</Table.ColumnHeader>
               <Table.ColumnHeader textAlign="end">{t("quantity")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("usageType")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("by")}</Table.ColumnHeader>
+              <Table.ColumnHeader>{t("createdBy")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("purpose")}</Table.ColumnHeader>
               <Table.ColumnHeader>{t("location")}</Table.ColumnHeader>
-              <Table.ColumnHeader>{t("by")}</Table.ColumnHeader>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {records.map((record) => (
-              <Table.Row key={record.id}>
-                <Table.Cell whiteSpace="nowrap" color="gray.500" fontSize="xs">
-                  {new Date(record.createdAt).toLocaleDateString()}
-                </Table.Cell>
-                {props.mode === "all" && (
-                  <Table.Cell fontSize="sm">{record.team.name}</Table.Cell>
-                )}
-                <Table.Cell>
-                  <HStack gap={1}>
-                    <Text fontWeight="medium" fontSize="sm">{record.item.name}</Text>
-                    {record.item.unit && (
-                      <Badge colorPalette="gray" fontSize="xs">{record.item.unit}</Badge>
-                    )}
-                  </HStack>
-                </Table.Cell>
-                <Table.Cell textAlign="end" fontWeight="bold">{record.quantity}</Table.Cell>
-                <Table.Cell fontSize="sm" color="gray.700" maxW="200px">
-                  <Text truncate>{record.purpose}</Text>
-                </Table.Cell>
-                <Table.Cell fontSize="sm" color="gray.500" maxW="160px">
-                  <Text truncate>{record.location ?? "—"}</Text>
-                </Table.Cell>
-                <Table.Cell fontSize="xs" color="gray.500" whiteSpace="nowrap">
-                  {record.user?.name ?? record.user?.email ?? "—"}
-                </Table.Cell>
-              </Table.Row>
-            ))}
+            {records.map((record) => {
+              const isLogOnly = record.quantity === 0;
+              return (
+                <Table.Row key={record.id}>
+                  <Table.Cell whiteSpace="nowrap" color="gray.500" fontSize="xs">
+                    {new Date(record.createdAt).toLocaleDateString()}
+                  </Table.Cell>
+                  {props.mode === "all" && (
+                    <Table.Cell fontSize="sm">{record.team.name}</Table.Cell>
+                  )}
+                  <Table.Cell>
+                    <HStack gap={1}>
+                      <Text fontWeight="medium" fontSize="sm">{record.item.name}</Text>
+                      {record.item.unit && (
+                        <Badge colorPalette="gray" fontSize="xs">{record.item.unit}</Badge>
+                      )}
+                    </HStack>
+                  </Table.Cell>
+                  <Table.Cell textAlign="end" fontWeight="bold">{record.quantity}</Table.Cell>
+                  <Table.Cell>
+                    <Badge colorPalette={isLogOnly ? "blue" : "orange"} size="sm">
+                      {isLogOnly ? t("logOnly") : t("consume")}
+                    </Badge>
+                  </Table.Cell>
+                  <Table.Cell fontSize="xs" color="gray.700" whiteSpace="nowrap">
+                    {record.teamLeader?.name ?? record.teamLeader?.email ?? "—"}
+                  </Table.Cell>
+                  <Table.Cell fontSize="xs" color="gray.500" whiteSpace="nowrap">
+                    {record.user?.name ?? record.user?.email ?? "—"}
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm" color="gray.700" maxW="200px">
+                    <Text truncate>{record.purpose}</Text>
+                  </Table.Cell>
+                  <Table.Cell fontSize="sm" color="gray.500" maxW="160px">
+                    <Text truncate>{record.location ?? "—"}</Text>
+                  </Table.Cell>
+                </Table.Row>
+              );
+            })}
           </Table.Body>
         </Table.Root>
       </Box>

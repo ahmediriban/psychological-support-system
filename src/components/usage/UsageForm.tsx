@@ -118,7 +118,7 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
       {
         itemId: selectedItem.itemId,
         teamId: activeTeamId,
-        quantity: data.quantity ?? 1,
+        quantity: multiUseMode === "log_only" ? 0 : (data.quantity ?? 1),
         purpose: data.purpose,
         location: data.location || undefined,
         destroyStock,

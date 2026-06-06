@@ -5,6 +5,7 @@ export type TeamWorker = {
   name: string | null;
   email: string;
   teamId: string | null;
+  isTeamLeader?: boolean;
 };
 
 /** Returned by GET /api/teams (list with counts) */
@@ -45,6 +46,7 @@ export type UsageEntry = {
   createdAt: string;
   item: { id: string; name: string; unit: string | null };
   user: { id: string; name: string | null; email: string } | null;
+  teamLeader: { id: string; name: string | null; email: string } | null;
 };
 
 /** Returned by GET /api/teams/[id]/distribution */

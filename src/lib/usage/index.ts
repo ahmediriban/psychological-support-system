@@ -12,7 +12,17 @@ type CreateUsageData = {
 
 const USAGE_INCLUDE = {
   item: { select: { id: true, name: true, unit: true } },
-  team: { select: { id: true, name: true } },
+  team: {
+    select: {
+      id: true,
+      name: true,
+      users: {
+        where: { isTeamLeader: true },
+        select: { id: true, name: true, email: true },
+        take: 1,
+      },
+    },
+  },
   user: { select: { id: true, name: true, email: true } },
 };
 
@@ -20,13 +30,14 @@ function toRecord(log: any): UsageRecord {
   return {
     id: log.id,
     teamId: log.teamId,
-    team: log.team,
+    team: { id: log.team.id, name: log.team.name },
     itemId: log.itemId,
     item: log.item,
     quantity: log.quantity,
     purpose: log.purpose,
     location: log.location ?? null,
     user: log.user ?? null,
+    teamLeader: log.team?.users?.[0] ?? null,
     createdAt:
       log.createdAt instanceof Date ? log.createdAt.toISOString() : log.createdAt,
   };

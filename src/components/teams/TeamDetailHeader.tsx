@@ -14,7 +14,8 @@ export function TeamDetailHeader({ teamId, role }: Props) {
   const t = useTranslations("teams");
   const { data: team, isLoading } = useTeam(teamId);
 
-  const responsibleWorker = team?.users.find((u) => u.role === "USER") ?? null;
+  const responsibleWorker = team?.users.find((u) => u.isTeamLeader) ?? team?.users.find((u) => u.role === "USER") ?? null;
+  const memberCount = team?.users.filter((u) => u.role === "USER").length ?? 0;
 
   return (
     <Box mb={6}>
@@ -34,6 +35,11 @@ export function TeamDetailHeader({ teamId, role }: Props) {
             </Badge>
           ) : (
             <Badge colorPalette="gray">{t("noWorker")}</Badge>
+          )}
+          {memberCount > 1 && (
+            <Badge colorPalette="blue" variant="subtle">
+              {t("membersCount", { count: memberCount })}
+            </Badge>
           )}
         </HStack>
       )}
