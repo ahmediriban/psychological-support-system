@@ -179,6 +179,14 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
                       variant={isActive ? "solid" : "outline"}
                       colorPalette={isActive ? color : "gray"}
                       borderRadius="full"
+                      fontWeight={isActive ? "semibold" : "medium"}
+                      boxShadow={isActive ? "sm" : "none"}
+                      transition="all 0.18s ease"
+                      _hover={{
+                        transform: "translateY(-1px)",
+                        boxShadow: "sm",
+                      }}
+                      _active={{ transform: "scale(0.97)" }}
                       onClick={() => setSelectedCategory(cat)}
                     >
                       {tc(cat)}
@@ -225,16 +233,35 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
               <Text fontSize="xs" color="gray.500" mb={2} textTransform="uppercase">
                 {t("multiUseAction")}
               </Text>
-              <HStack gap={2}>
+              <HStack
+                rowGap={3}
+                columnGap={3}
+                flexDirection={{ base: "column", sm: "row" }}
+                alignItems="stretch"
+              >
                 <Button
                   flex={1}
                   size="sm"
                   variant={multiUseMode === "destroy" ? "solid" : "outline"}
                   colorPalette={multiUseMode === "destroy" ? "red" : "gray"}
+                  borderRadius="xl"
+                  py={{ base: 4, md: 6 }}
+                  letterSpacing="0.3px"
+                  transition="all 0.2s ease"
+                  boxShadow={multiUseMode === "destroy" ? "md" : "none"}
+                  borderWidth={multiUseMode === "destroy" ? "0" : "1.5px"}
+                  _hover={{
+                    transform: "translateY(-2px)",
+                    boxShadow: "md",
+                    borderColor: "red.400",
+                    color: multiUseMode === "destroy" ? undefined : "red.500",
+                  }}
+                  _active={{ transform: "scale(0.98)", boxShadow: "sm" }}
                   onClick={() => {
                     setMultiUseMode("destroy");
                     reset((v) => ({ ...v, quantity: 1 }));
                   }}
+                  width="100%"
                 >
                   {t("multiUseDestroy")}
                 </Button>
@@ -243,11 +270,25 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
                   size="sm"
                   variant={multiUseMode === "log_only" ? "solid" : "outline"}
                   colorPalette={multiUseMode === "log_only" ? "blue" : "gray"}
+                  borderRadius="xl"
+                  py={{ base: 4, md: 6 }}
+                  letterSpacing="0.3px"
+                  transition="all 0.2s ease"
+                  boxShadow={multiUseMode === "log_only" ? "md" : "none"}
+                  borderWidth={multiUseMode === "log_only" ? "0" : "1.5px"}
+                  _hover={{
+                    transform: "translateY(-2px)",
+                    boxShadow: "md",
+                    borderColor: "blue.400",
+                    color: multiUseMode === "log_only" ? undefined : "blue.500",
+                  }}
+                  _active={{ transform: "scale(0.98)", boxShadow: "sm" }}
                   onClick={() => setMultiUseMode("log_only")}
                 >
                   {t("multiUseLogOnly")}
                 </Button>
               </HStack>
+         
             </Box>
           </>
         )}
@@ -319,7 +360,15 @@ export function UsageForm({ role, lockedTeamId, lockedTeamName, onSuccess }: Pro
           type="submit"
           colorPalette="green"
           w="full"
-          size="lg"
+          size="sm"
+          borderRadius="xl"
+          fontWeight="bold"
+          letterSpacing="0.5px"
+          py={{ base: 7, md: 7 }}
+          boxShadow={canSubmit ? "md" : "none"}
+          transition="all 0.2s ease"
+          _hover={canSubmit ? { transform: "translateY(-2px)", boxShadow: "lg" } : {}}
+          _active={{ transform: "scale(0.98)", boxShadow: "sm" }}
           loading={mutation.isPending}
           disabled={!canSubmit}
         >

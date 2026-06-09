@@ -22,7 +22,7 @@ import { useState } from "react";
 import { LuDownload } from "react-icons/lu";
 import * as XLSX from "xlsx";
 import { useTeam } from "../../hooks/teams/useTeams";
-import type { DistributionEntry, UsageEntry } from "../../types/team";
+import type { DistributionEntry, StockEntry, UsageEntry } from "../../types/team";
 
 function toDateInputStr(d: Date) {
   const y = d.getFullYear();
@@ -44,6 +44,7 @@ type Props = { teamId: string };
 
 export function TeamExportDialog({ teamId }: Props) {
   const t = useTranslations("teams");
+  const tc = useTranslations("categories");
   const locale = useLocale();
   const { data: team } = useTeam(teamId);
 
@@ -64,14 +65,29 @@ export function TeamExportDialog({ teamId }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/teams/${teamId}/export?from=${from}&to=${to}`);
-      if (!res.ok) throw new Error(t("error"));
-      const { usage, distribution } = (await res.json()) as {
+      const [exportRes, stockRes] = await Promise.all([
+        fetch(`/api/teams/${teamId}/export?from=${from}&to=${to}`),
+        fetch(`/api/teams/${teamId}/stock`),
+      ]);
+      if (!exportRes.ok || !stockRes.ok) throw new Error(t("error"));
+      const { usage, distribution } = (await exportRes.json()) as {
         usage: UsageEntry[];
         distribution: DistributionEntry[];
       };
+      const stock = (await stockRes.json()) as StockEntry[];
 
       const wb = XLSX.utils.book_new();
+
+      // Sheet 1 — Stock Summary
+      const stockHeaders = [t("item"), t("unit"), tc("category"), t("quantity")];
+      const stockRows = stock.map((e) => [
+        e.item.name,
+        e.item.unit ?? "",
+        tc(e.item.category),
+        e.quantity,
+      ]);
+      const stockWs = XLSX.utils.aoa_to_sheet([stockHeaders, ...stockRows]);
+      XLSX.utils.book_append_sheet(wb, stockWs, t("stockSheetName"));
 
       const tu = (key: string) => {
         const map: Record<string, string> = {
